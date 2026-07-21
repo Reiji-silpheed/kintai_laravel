@@ -31,16 +31,23 @@
                     </div>
                 </div>
             </div>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
-                <button type="button" class="btn btn-warning me-md-2" @click="clear">クリア</button>
+            <div class="gap-2 d-md-flex justify-content-md-end mt-2">
+                <button type="button" class="btn btn-warning md-2" @click="clear">クリア</button>
                 <button type="button" class="btn btn-info" @click="search">検索</button>
             </div>
         </div>
     </div>
+    <div>
+        <employee-table-component :items='items'></employee-table-component>
+    </div>
+
 </template>
 
 <script>
+import EmployeeTableComponent from "./EmployeeTableComponent.vue";
+import axios from "axios";
 export default{
+    components:{EmployeeTableComponent},
     data(){
         return{
             searchNumber:"",
@@ -55,7 +62,8 @@ export default{
     },
     methods:{
         async hello(){
-            let res=await axios.get("/api/employee");
+            let res=await axios.get("/api/employee_api");
+            console.log(res.data);
             const data=res.data;
             this.items=data;
         }

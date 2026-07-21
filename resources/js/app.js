@@ -28,7 +28,7 @@ app.component('example-component', ExampleComponent);
  */
 
 Object.entries(import.meta.glob('./**/*.vue', { eager: true })).forEach(([path, definition]) => {
-     app.component(path.split('/').pop().replace(/\.\w+$/, ''), definition.default);
+    app.component(path.split('/').pop().replace(/\.\w+$/, ''), definition.default);
 });
 
 /**
