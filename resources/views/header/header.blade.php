@@ -19,7 +19,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item @yield('active-employee_master')" href="/employee_api">社員マスタ管理</a></li>
-                            <li><a class="dropdown-item @yield('active-holiday_master')"  href="#">祝日マスタ管理</a></li>
+                            <li><a class="dropdown-item @yield('active-holiday_master')"  href="/holiday">祝日マスタ管理</a></li>
                         </ul>
                     </li>
                 @endif

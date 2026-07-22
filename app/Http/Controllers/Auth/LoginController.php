@@ -5,35 +5,38 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Http\Response;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\LoginRequest;
+use App\Models\User;
 
 class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    public function index(Request $request,Response $response):View
+
+    public function index()
     {
         return view('auth.login');
     }
-    public function open(LoginRequest $request,Response $response):RedirectResponse
+
+
+    public function login(LoginRequest $request)
     {
-        $loginID=$request->input('loginID');
-        $items=User::where('id',$loginID)->get();
-        if($items->contains('role_cd','0')){
-            session()->put('role_cd',0);
+        $user = User::where('id', $request->loginID)->first();
+
+        /* ログイン済みであることを認識させる */
+        Auth::login($user);
+        session()->put('role_cd',$user['role_cd']);
+
+        if ($user->role_cd == 0) {
             return redirect('/kintai_entry_api');
         }
-        else{
-            session()->put('role_cd',1);
-            return redirect('/kintai_master');
-        }
+
+        return redirect('/kintai_master');
     }
-    public function __construct()
+
+    protected function loggedOut(Request $request)
     {
-        $this->middleware('guest')->except('logout');
+        return redirect('/login');
     }
 }
