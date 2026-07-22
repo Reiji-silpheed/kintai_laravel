@@ -15,7 +15,9 @@
                         <th>#</th>
                         <th scope="col">社員番号</th>
                         <th scope="col">社員名</th>
+                        <th scope="col">メールアドレス</th>
                         <th scope="col">入社日</th>
+                        <th scope="col">権限</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -23,13 +25,18 @@
                         <td>
                             <div class="form-check">
                                 <label >
-                                    <input type="radio" class="form-check-input" name="radio" :value="item.id">
+                                    <input type="radio" class="form-check-input" name="radio" value="item.id">
                                 </label>
                             </div>
                         </td>
                         <td>{{item.user_no}}</td>
                         <td>{{item.name}}</td>
+                        <td>{{item.email}}</td>
                         <td>{{item.start_date}}</td>
+                        <td>
+                            <span v-if="item.role_cd==0">一般</span>
+                            <span v-else-if="item.role_cd==1">管理者</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
