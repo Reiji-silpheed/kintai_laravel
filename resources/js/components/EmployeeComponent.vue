@@ -41,7 +41,8 @@
         </div>
     </div>
     <div>
-        <employee-table-component :items='items'></employee-table-component>
+        <!-- 子コンポーネントから送られた値はpageChageの第一引数に自動的に渡される -->
+        <employee-table-component :items='items' :offset='offset' @page-item="pageChange"></employee-table-component>
     </div>
 
 </template>
@@ -59,6 +60,7 @@ export default{
             searchDate:"",
             searchRole_cd:"",
             alert:false,
+            offset:1,
             items:[],
         }
     },
@@ -68,15 +70,22 @@ export default{
     methods:{
         async hello(){
             let res=await axios.get("/api/employee_api");
-            const data=res.data;
+            const data=res.data.startItems;
             this.items=data;
+            const count=res.data.items;
+            const offset=(count.length)/5;
+            this.offset=Math.ceil(offset);
         },
         async search(){
             this.alert=false;
             let res=await axios.get("/api/employee_api/search?searchNumber="+this.searchNumber+"&searchName="+this.searchName+"&searchEmail="+this.searchEmail+"&searchDate="+this.searchDate+"&searchRole_cd="+this.searchRole_cd);
-            const data=res.data;
+            const data=res.data.startItems;
             this.items=data;
-            if(data.length===0){
+            const count=res.data.items;
+            const offset=(count.length)/5;
+            this.offset=Math.ceil(offset);
+            console.log(this.offset);
+            if(count.length===0){
                 this.alert=true;
             }
         },
@@ -86,10 +95,14 @@ export default{
             this.searchEmail="";
             this.searchDate="";
             this.searchRole_cd="";
-            this.alert=false;
-            let res=await axios.get("/api/employee_api");
-            const data=res.data;
+        },
+        async pageChange(page){
+            const res=await axios.get("/api/employee_api/page",{params:{page:page,searchNumber:this.searchNumber,searchName:this.searchName,searchEmail:this.searchEmail,searchDate:this.searchDate,searchRole_cd:this.searchRole_cd}});
+            const data=res.data.startItems;
             this.items=data;
+            const count=res.data.items;
+            const offset=(count.length)/5;
+            this.offset=Math.ceil(offset);
         }
     }
 }

@@ -5,9 +5,9 @@
         </div>
         <div class="card-body">
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button class="btn btn-success md-2" type="button" @click="newBtn">新規</button>
-                <button class="btn btn-primary" type="button" @click="updateBtn">更新</button>
-                <button class="btn btn-danger" type="button" @click="deleteBtn">削除</button>
+                <button class="btn btn-success" type="button" @click="newBtn">新規</button>
+                <button class="btn btn-primary" type="button" @click="updateBtn" :disabled="selected===''">更新</button>
+                <button class="btn btn-danger" type="button" @click="deleteBtn" :disabled="selected===''">削除</button>
             </div>
             <table class="table mt-2">
                 <thead class="table-dark">
@@ -25,7 +25,7 @@
                         <td>
                             <div class="form-check">
                                 <label >
-                                    <input type="radio" class="form-check-input" name="radio" value="item.id">
+                                    <input type="radio" class="form-check-input" name="radio" :value="item.id" v-model="selected">
                                 </label>
                             </div>
                         </td>
@@ -40,14 +40,52 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="container">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item"><input type="button" class="page-link" :class="{disabled:actived==1}" @click="page_front" value="前" ></li>
+                        <!-- templateタグ:HTMLに出力されないタグ -->
+                        <template v-for="n in offset" :key="n">
+                            <li class="page-item"><input type="button" class="page-link" :class="{active:actived==n}" name="page" :value="n" @click="page($event)" ></li>
+                        </template>
+                        <li class="page-item"><input type="button" class="page-link" :class="{disabled:actived==offset || offset==0}" @click="page_next" value="次"></li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 export default{
+    name:'NumberList',
     props:{
-        items:[]
+        items:[],
+        offset:1
     },
+    data(){
+        return{
+            selected:"",
+            actived:1
+        };
+    },
+    methods:{
+        async page(event){
+            let pageValue=event.target.value;
+            this.actived=pageValue;
+            this.$emit("page-item",pageValue);
+        },
+        async page_front(){
+            let pageValue=this.actived-1;
+            this.actived=pageValue;
+            this.$emit("page-item",pageValue);
+        },
+        async page_next(){
+            let pageValue=this.actived+1;
+            this.actived=pageValue;
+            this.$emit("page-item",pageValue);
+        }
+    }
+
 }
 </script>
