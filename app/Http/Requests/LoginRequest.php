@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Rules\LoginRule;
 class LoginRequest extends FormRequest
 {
     /**
@@ -26,18 +27,18 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'loginID'=>'required|numeric|exists:users,id',
-            'loginPassword'=>'required|exists:users,password'
+            'loginEmail'=>'required|exists:users,email',
+            'loginPassword'=>['required',new LoginRule]
         ];
     }
     public function messages()
     {
         return[
-            'loginID.exists'=>'IDまたはパスワードが間違っています',
-            'loginID.required'=>'IDまたはパスワードが間違っています',
-            'loginPassword.exists'=>'IDまたはパスワードが間違っています',
-            'loginID.numeric'=>'IDまたはパスワードが間違っています',
-            'loginPassword.required'=>'IDまたはパスワードが間違っています'
+            'loginEmail.exists'=>'メールアドレスまたはパスワードが間違っています',
+            'loginEmail.required'=>'メールアドレスまたはパスワードが間違っています',
+            'loginPassword.exists'=>'メールアドレスまたはパスワードが間違っています',
+            'loginEmail.numeric'=>'メールアドレスまたはパスワードが間違っています',
+            'loginPassword.required'=>'メールアドレスまたはパスワードが間違っています'
         ];
     }
 }

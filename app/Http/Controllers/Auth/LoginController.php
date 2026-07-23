@@ -22,7 +22,7 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $user = User::where('id', $request->loginID)->first();
+        $user = User::where('email', $request->loginEmail)->first();
 
         /* ログイン済みであることを認識させる */
         Auth::login($user);

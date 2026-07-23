@@ -8,8 +8,8 @@
             <div class="card-header">ログイン</div>
             <div class="card-body">
                 <div class="position-relative">
-                    <label class="form-lavel">ID:</label>
-                    <input type="text" name="loginID" class="form-control  @if($errors->has('loginID') || $errors->has('loginPassword')) is-invalid @endif" value="{{old('loginID')}}">
+                    <label class="form-lavel">メールアドレス:</label>
+                    <input type="text" name="loginEmail" class="form-control  @if($errors->has('loginEmail') || $errors->has('loginPassword')) is-invalid @endif" value="{{old('loginEmail')}}">
 
                     @if($errors->any())
                         <span class="text-danger">{{ $errors->first() }}</p>
