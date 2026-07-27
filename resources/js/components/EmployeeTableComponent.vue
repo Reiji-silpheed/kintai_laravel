@@ -5,8 +5,8 @@
         </div>
         <div class="card-body">
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button class="btn btn-success" type="button" @click="newBtn">新規</button>
-                <button class="btn btn-primary" type="button" @click="updateBtn" :disabled="selected===''">更新</button>
+                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#newModal">新規</button>
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updateModal" @click="modal" :disabled="selected===''">更新</button>
                 <button class="btn btn-danger" type="button" @click="deleteBtn" :disabled="selected===''">削除</button>
             </div>
             <table class="table mt-2">
@@ -25,7 +25,7 @@
                         <td>
                             <div class="form-check">
                                 <label >
-                                    <input type="radio" class="form-check-input" name="radio" :value="item.id" v-model="selected">
+                                    <input type="radio" class="form-check-input" name="radio" :value="item.id" v-model="selected" >
                                 </label>
                             </div>
                         </td>
@@ -54,6 +54,7 @@
             </div>
         </div>
     </div>
+
 </template>
 
 <script>
@@ -61,13 +62,22 @@ export default{
     name:'NumberList',
     props:{
         items:[],
-        offset:1
+        offset:1,
+        resetPage:1,
     },
     data(){
         return{
             selected:"",
-            actived:1
+            actived:1,
         };
+    },
+    /* resetPageが1のとき(検索処理を行うとき)、activedを1にするようにする */
+    watch:{
+        resetPage(newValue){
+            if(newValue==1){
+                this.actived=newValue
+            }
+        }
     },
     methods:{
         async page(event){
@@ -84,6 +94,10 @@ export default{
             let pageValue=this.actived+1;
             this.actived=pageValue;
             this.$emit("page-item",pageValue);
+        },
+        async modal(){
+            let selected=this.selected;
+            this.$emit("selected-item",selected);
         }
     }
 

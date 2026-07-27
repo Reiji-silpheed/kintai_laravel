@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Requests\EmployeeAddRequest;
+use App\Http\Requests\EmployeeEditRequest;
+
 
 class EmployeeController extends Controller
 {
@@ -35,8 +38,8 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when($searchRole_cd,function($query,$searchRole_cd){
-            return $query->where('role_cd',$searchRole_cd);
+        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+            return $query->where('role_cd', $searchRole_cd);
         })
         ->get();
         $startItems=User::query()
@@ -52,9 +55,10 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when($searchRole_cd,function($query,$searchRole_cd){
-            return $query->where('role_cd',$searchRole_cd);
-        })->orderBy('id','asc')->offset(0)->limit(5)->get();
+        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+            return $query->where('role_cd', $searchRole_cd);
+        })
+        ->orderBy('id','asc')->offset(0)->limit(5)->get();
         return compact('items','startItems');
     }
     public function page(Request $request){
@@ -79,8 +83,8 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when($searchRole_cd,function($query,$searchRole_cd){
-            return $query->where('role_cd',$searchRole_cd);
+        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+            return $query->where('role_cd', $searchRole_cd);
         })
         ->get();
         $startItems=User::query()
@@ -96,9 +100,79 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when($searchRole_cd,function($query,$searchRole_cd){
-            return $query->where('role_cd',$searchRole_cd);
-        })->orderBy('id','asc')->offset($offset)->limit(5)->get();
+        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+            return $query->where('role_cd', $searchRole_cd);
+        })
+        ->orderBy('id','asc')->offset($offset)->limit(5)->get();
         return compact('items','startItems');
+    }
+    public function add(EmployeeAddRequest $request){
+        DB::beginTransaction();
+        try{
+            $items=new User();
+            $newNumber=$request->input('newNumber');
+            $newName=$request->input('newName');
+            $newDate=$request->input('newDate');
+            $newRole_cd=$request->input('newRole_cd');
+            $newEmail=$request->input('newEmail');
+            $newPassword=$request->input('newPassword');
+            $items->fill([
+                'user_no'=>$newNumber,
+                'name'=>$newName,
+                'start_date'=>$newDate,
+                'role_cd'=>$newRole_cd,
+                'email'=>$newEmail,
+                'password'=>$newPassword
+            ]);
+            $items->save();
+            DB::commit();
+        }
+        catch(\Exception $ex){
+            DB::rollBack();
+        }
+    }
+    public function updateModal(Request $request){
+        $id=$request->input('selected');
+        $items=User::where('id',$id)->get();
+        return $items;
+    }
+    public function edit(EmployeeEditRequest $request){
+        DB::beginTransaction();
+        $selected=$request->input('selected');
+        $updateNumber=$request->input('updateNumber');
+        $updateName=$request->input('updateName');
+        $updateDate=$request->input('updateDate');
+        $updateRole_cd=$request->input('updateRole_cd');
+        $updateEmail=$request->input('updateEmail');
+        $updatePassword=$request->input('updatePassword');
+        $updateCheckPassword=$request->input('updateCheckPassword');
+        try{
+            $item=User::find($selected);
+            if($updatePassword=="" && $updateCheckPassword==""){
+                $item->fill([
+                    'user_no'=>$updateNumber,
+                    'name'=>$updateName,
+                    'start_date'=>$updateDate,
+                    'role_cd'=>$updateRole_cd,
+                    'email'=>$updateEmail,
+                ]);
+            }
+            elseif($updatePassword!=="" && $updateCheckPassword!==""){
+                $item->fill([
+                    'user_no'=>$updateNumber,
+                    'name'=>$updateName,
+                    'start_date'=>$updateDate,
+                    'role_cd'=>$updateRole_cd,
+                    'email'=>$updateEmail,
+                    'password'=>$updatePassword
+                ]);
+            }
+            $item->save();
+            DB::commit();
+        }
+        catch(\Exception $ex){
+            DB::rollBack();
+            dd($ex->getMessage());
+        }
     }
 }
