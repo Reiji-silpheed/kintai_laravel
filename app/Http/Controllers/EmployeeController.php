@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\EmployeeAddRequest;
 use App\Http\Requests\EmployeeEditRequest;
+use Carbon\Carbon;
 
 
 class EmployeeController extends Controller
@@ -64,11 +65,11 @@ class EmployeeController extends Controller
     public function page(Request $request){
         $page=$request->input('page');
         $offset=5*($page-1);
-        $searchNumber=$request->input('searchNumber');
-        $searchName=$request->input('searchName');
-        $searchEmail=$request->input('searchEmail');
-        $searchDate=$request->input('searchDate');
-        $searchRole_cd=$request->input('searchRole_cd');
+        $searchNumber=$request->input('createSearch.0');
+        $searchName=$request->input('createSearch.1');
+        $searchEmail=$request->input('createSearch.2');
+        $searchDate=$request->input('createSearch.3');
+        $searchRole_cd=$request->input('createSearch.4');
         /* 条件があるときだけwhereをつけたいとき、when()メソッドを使う */
         $items=User::query()
         ->when($searchNumber,function($query,$searchNumber){
@@ -83,7 +84,7 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+        ->when(!is_null($request->input('createSearch.4')), function ($query) use ($searchRole_cd) {
             return $query->where('role_cd', $searchRole_cd);
         })
         ->get();
@@ -100,7 +101,7 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+        ->when(!is_null($request->input('createSearch.4')), function ($query) use ($searchRole_cd) {
             return $query->where('role_cd', $searchRole_cd);
         })
         ->orderBy('id','asc')->offset($offset)->limit(5)->get();
@@ -155,6 +156,7 @@ class EmployeeController extends Controller
                     'start_date'=>$updateDate,
                     'role_cd'=>$updateRole_cd,
                     'email'=>$updateEmail,
+                    'updated_at'=>Carbon::now('Asia/Tokyo')
                 ]);
             }
             elseif($updatePassword!=="" && $updateCheckPassword!==""){
@@ -164,7 +166,8 @@ class EmployeeController extends Controller
                     'start_date'=>$updateDate,
                     'role_cd'=>$updateRole_cd,
                     'email'=>$updateEmail,
-                    'password'=>$updatePassword
+                    'password'=>$updatePassword,
+                    'updated_at'=>Carbon::now('Asia/Tokyo')
                 ]);
             }
             $item->save();
@@ -173,6 +176,20 @@ class EmployeeController extends Controller
         catch(\Exception $ex){
             DB::rollBack();
             dd($ex->getMessage());
+        }
+    }
+    public function delete(Request $request){
+        DB::beginTransaction();
+        $selected=$request->input('radio');
+        try{
+            $count=User::count('id');
+            $item=User::find($selected);
+            $item->delete();
+            DB::commit();
+            return $count;
+        }
+        catch(\Exception $ex){
+            DB::rollBack();
         }
     }
 }

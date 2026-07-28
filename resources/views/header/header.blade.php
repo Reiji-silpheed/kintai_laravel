@@ -4,7 +4,7 @@
 
         <div class="collapse navbar-collapse" id="Navber">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                @if((int)session('role_cd')===1)
+                @if(session('role_cd')==='manager')
                     <li class="nav-item">
                         <a class="nav-link @yield('active-kintai_master')" href="/kintai_master">勤怠管理</a>
                     </li>
@@ -12,7 +12,7 @@
                 <li class="nav-item">
                     <a class="nav-link @yield('active-kintai_entry')" href="/kintai_entry_api">勤怠入力</a>
                 </li>
-                @if((int)session('role_cd')===1)
+                @if(session('role_cd')==='manager')
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle @yield('active-master')" role="button"  data-bs-toggle="dropdown" aria-expanded="false">
                             マスタ管理

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\KintaiMasterController;
 
 Route::get('/', function () {
@@ -20,12 +21,16 @@ Route::controller(LoginController::class)->group(function(){
 
 /* 社員マスタ管理 */
 Route::get('/employee_api',function(){
+    if(session('role_cd')=='gereral'){
+        return redirect('/login');
+    }
     return view('vue.employee_api');
 })->middleware('auth');
 
 /* 祝日マスタ管理 */
-Route::get('/holiday',function(){
-    Route::get('holiday','index')->middleware('auth');
+Route::controller(HolidayController::class)->group(function(){
+    Route::get('holiday','index');
+    Route::get('holiday/search','search');
 });
 /* 勤怠入力 */
 Route::get('/kintai_entry_api',function(){

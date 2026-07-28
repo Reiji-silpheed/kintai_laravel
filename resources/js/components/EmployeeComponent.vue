@@ -1,50 +1,55 @@
 <template>
     <div v-if="alert">
-        <div class="alert alert-warning" role="alert">検索結果がありません</div>
+        <div class="alert alert-warning" role="alert">検索結果がありませんでした。</div>
     </div>
-    <div class="card">
-        <div class="card-header">
-            検索条件
-        </div>
-        <div class="card-body">
-            <div class="container">
-                <div class="row">
-                    <div class="col-2">
-                        <label class="form-label">社員番号:</label>
-                        <input type="text" class="form-control" name="searchNumber" v-model="searchNumber">
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                検索条件
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-2">
+                            <label class="form-label">社員番号:</label>
+                            <input type="text" class="form-control" name="searchNumber" v-model="searchNumber">
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label">社員名:</label>
+                            <input type="text" class="form-control" name="searchName" v-model="searchName">
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label">メールアドレス:</label>
+                            <input type="text" class="form-control" name="searchEmail" v-model="searchEmail">
+                        </div>
+                        <div class="col-2">
+                            <label class="form-label">入社日:</label>
+                            <input type="date" class="form-control" name="searchDate" v-model="searchDate">
+                        </div>
+                        <div class="col-2">
+                            <label class="form-label">権限:</label>
+                            <select class="form-select" v-model="searchRole_cd">
+                                <option selected hidden value="" ></option>
+                                <option value="0">一般</option>
+                                <option value="1">管理者</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-3">
-                        <label class="form-label">社員名:</label>
-                        <input type="text" class="form-control" name="searchName" v-model="searchName">
-                    </div>
-                    <div class="col-3">
-                        <label class="form-label">メールアドレス:</label>
-                        <input type="text" class="form-control" name="searchEmail" v-model="searchEmail">
-                    </div>
-                    <div class="col-2">
-                        <label class="form-label">入社日:</label>
-                        <input type="date" class="form-control" name="searchDate" v-model="searchDate">
-                    </div>
-                    <div class="col-2">
-                        <label class="form-label">権限:</label>
-                        <select class="form-select" v-model="searchRole_cd">
-                            <option value="" hidden selected></option>
-                            <option value="0">一般</option>
-                            <option value="1">管理者</option>
-                        </select>
+                </div>
+                <div class="container">
+                    <div class="gap-2 d-md-flex justify-content-md-end mt-2">
+                        <button type="button" class="btn btn-warning md-2" @click="clear">クリア</button>
+                        <input type="button" class="btn btn-info" name="searchBtn" value="検索" @click="search">
                     </div>
                 </div>
             </div>
-            <div class="gap-2 d-md-flex justify-content-md-end mt-2">
-                <button type="button" class="btn btn-warning md-2" @click="clear">クリア</button>
-                <input type="button" class="btn btn-info" name="searchBtn" value="検索" @click="search">
-            </div>
+        </div>
+        <div>
+            <!-- 子コンポーネントから送られた値はpageChageの第一引数に自動的に渡される -->
+            <employee-table-component :items='items' :offset='offset' :resetPage='resetPage' :disabled='disabled' @page-item="pageChange" @selected-item="modal" @radio-item="radio=$event"></employee-table-component>
         </div>
     </div>
-    <div>
-        <!-- 子コンポーネントから送られた値はpageChageの第一引数に自動的に渡される -->
-        <employee-table-component :items='items' :offset='offset' :resetPage='resetPage' @page-item="pageChange" @selected-item="modal"></employee-table-component>
-    </div>
+
 
     <!--新規モーダル-->
     <div class="modal fade modal-xl" id="newModal" tabindex="-1">
@@ -122,7 +127,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="add">登録</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="addItem">登録</button>
             </div><!-- /.modal-footer -->
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -200,7 +205,26 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="edit">更新</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="editItem">更新</button>
+            </div><!-- /.modal-footer -->
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- 削除モーダル -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h1 class="modal-title fs-5 text-white">社員削除</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <p>選択した社員を削除しますか？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteItem">削除</button>
             </div><!-- /.modal-footer -->
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -222,7 +246,7 @@ export default{
             newNumber:"",
             newName:"",
             newDate:"",
-            newRole_cd:"",
+            newRole_cd:0,
             newEmail:"",
             newPassword:"",
             newCheckPassword:"",
@@ -232,7 +256,10 @@ export default{
             page:"",
             resetPage:0,
             offset:1,
+            radio:"",
+            disabled:false,
             items:[],
+            createSearch:[],
             error:{},
             updateData:{}
         }
@@ -251,7 +278,15 @@ export default{
         },
         async search(){
             this.alert=false;
+            this.disabled=false;
             let res=await axios.get("/api/employee_api/search?searchNumber="+this.searchNumber+"&searchName="+this.searchName+"&searchEmail="+this.searchEmail+"&searchDate="+this.searchDate+"&searchRole_cd="+this.searchRole_cd);
+            this.createSearch=[
+                this.searchNumber,
+                this.searchName,
+                this.searchEmail,
+                this.searchDate,
+                this.searchRole_cd
+            ];
             const data=res.data.startItems;
             this.items=data;
             const count=res.data.items;
@@ -261,6 +296,7 @@ export default{
             if(count.length===0){
                 this.alert=true;
             }
+            this.disabled=true;
         },
         async clear(){
             this.searchNumber="";
@@ -272,13 +308,10 @@ export default{
         },
         async pageChange(page){
             this.resetPage=0;
+            this.disabled=false;
             const res=await axios.get("/api/employee_api/page",{params:{
                 page:page,
-                searchNumber:this.searchNumber,
-                searchName:this.searchName,
-                searchEmail:this.searchEmail,
-                searchDate:this.searchDate,
-                searchRole_cd:this.searchRole_cd
+                createSearch:this.createSearch
             }});
             this.page=page;
             const data=res.data.startItems;
@@ -286,8 +319,9 @@ export default{
             const count=res.data.items;
             const offset=(count.length)/5;
             this.offset=Math.ceil(offset);
+            this.disabled=true;
         },
-        async add(){
+        async addItem(){
             try{
                 let res=await axios.post("/api/employee_api/add",{
                     newNumber:this.newNumber,
@@ -319,7 +353,8 @@ export default{
             const data=res.data;
             this.updateData=data[0];
         },
-        async edit(){
+        async editItem(){
+            this.disabled=false;
             try{
                 let res=await axios.post("/api/employee_api/edit",{
                     selected:this.updateData.id,
@@ -332,11 +367,24 @@ export default{
                     updateCheckPassword:this.updateCheckPassword
                 });
                 this.error={};
+                this.disabled=true;
                 this.pageChange(this.page);
             }
             catch(error){
                 this.error=error.response.data.errors;
                 $("#updateModal").modal("show");
+            }
+        },
+        async deleteItem(){
+            this.disabled=false;
+            try{
+                let res=await axios.post("/api/employee_api/delete",{radio:this.radio});
+                this.disabled=true;
+                this.pageChange(this.page);
+            }
+            catch(error){
+                this.error=error.response.data.errors;
+                $("#deleteModal").modal("show");
             }
         }
     }

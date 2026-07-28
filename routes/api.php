@@ -11,6 +11,9 @@ Route::get('employee_api/page',[EmployeeController::class,'page']);
 Route::post('employee_api/add',[EmployeeController::class,'add']);
 Route::post('employee_api/updateModal',[EmployeeController::class,'updateModal']);
 Route::post('employee_api/edit',[EmployeeController::class,'edit']);
+Route::post('employee_api/delete',[EmployeeController::class,'delete']);
+
+
 
 Route::get('kintai_entry_api',[KintaiEntryController::class,'index']);
 

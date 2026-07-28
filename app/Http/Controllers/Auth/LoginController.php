@@ -26,12 +26,17 @@ class LoginController extends Controller
 
         /* ログイン済みであることを認識させる */
         Auth::login($user);
-        session()->put('role_cd',$user['role_cd']);
+        if($user['role_cd']==0){
+            session()->put('role_cd','general');
 
-        if ($user->role_cd == 0) {
-            return redirect('/kintai_entry_api');
+        }
+        elseif($user['role_cd']==1){
+            session()->put('role_cd','manager');
         }
 
+        if (session('role_cd') == 'general') {
+            return redirect('/kintai_entry_api');
+        }
         return redirect('/kintai_master');
     }
 
