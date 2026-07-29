@@ -30,8 +30,12 @@ Route::get('/employee_api',function(){
 /* 祝日マスタ管理 */
 Route::controller(HolidayController::class)->group(function(){
     Route::get('holiday','index');
-    Route::get('holiday/search','search');
-});
+    Route::get('holiday/form','searchCondition');
+    Route::get('holiday/page/{page}','page')->name('holiday/page');
+    Route::get('holiday/page_front','pageFront');
+    Route::get('holiday/page_next','pageNext');
+    Route::post('holiday/add','add');
+})->middleware('auth');
 /* 勤怠入力 */
 Route::get('/kintai_entry_api',function(){
     return view('vue.kintai_entry_api');
