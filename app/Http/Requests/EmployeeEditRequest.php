@@ -30,11 +30,11 @@ class EmployeeEditRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'updateNumber'=>'required',
+            'updateNumber'=>'required|numeric',
             'updateName'=>'required',
             'updateDate'=>'required',
             'updateRole_cd'=>'required',
-            'updateEmail'=>'required',
+            'updateEmail'=>'required|email|regex:/^[\x20-\x7E]+$/',
             'updatePassword'=>[new EmployeeEditRule()]
         ];
     }
@@ -42,10 +42,13 @@ class EmployeeEditRequest extends FormRequest
     {
         return[
             'updateNumber.required'=>'社員番号は必須項目です',
+            'updateNumber.numeric'=>'社員番号は半角の数字で入力して下さい',
             'updateName.required'=>'社員名は必須項目です',
             'updateDate.required'=>'入社日は必須項目です',
             'updateRole_cd.required'=>'権限は必須項目です',
-            'updateEmail.required'=>'メールアドレスは必須項目です'
+            'updateEmail.required'=>'メールアドレスは必須項目です',
+            'updateEmail.email'=>'メールアドレス形式で入力してください',
+            'updateEmail.regex'=>'メールアドレスは半角で入力してください'
         ];
     }
 }

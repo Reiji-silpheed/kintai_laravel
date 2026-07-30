@@ -30,11 +30,11 @@ class EmployeeAddRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'newNumber'=>'required',
+            'newNumber'=>'required|numeric',
             'newName'=>'required',
             'newDate'=>'required',
             'newRole_cd'=>'required',
-            'newEmail'=>'required|unique:users,email',
+            'newEmail'=>'required|email|unique:users,email|regex:/^[\x20-\x7E]+$/',
             'newPassword'=>['required',new EmployeeAddRule()],
             'newCheckPassword'=>'required'
         ];
@@ -43,11 +43,14 @@ class EmployeeAddRequest extends FormRequest
     {
         return[
             'newNumber.required'=>'社員番号が入力されていません',
+            'newNumber.numeric'=>'社員番号は半角の数値で入力してください',
             'newName.required'=>'社員名が入力されていません',
             'newDate.required'=>'入社日が入力されていません',
             'newRole_cd.required'=>'権限が入力されていません',
             'newEmail.required'=>'メールアドレスが入力されていません',
+            'newEmail.email'=>'メールアドレス形式で入力してください',
             'newEmail.unique'=>'入力されたメールアドレスは既に存在します',
+            'newEmail.regex'=>'メールアドレスは半角で入力してください',
             'newPassword.required'=>'パスワードが入力されていません',
             'newCheckPassword.required'=>'確認用パスワードが入力されていません'
         ];

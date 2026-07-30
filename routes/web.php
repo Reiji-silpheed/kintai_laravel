@@ -35,6 +35,8 @@ Route::controller(HolidayController::class)->group(function(){
     Route::get('holiday/page_front','pageFront');
     Route::get('holiday/page_next','pageNext');
     Route::post('holiday/add','add');
+    Route::post('holiday/edit','edit');
+    Route::post('holiday/delete','delete');
 })->middleware('auth');
 /* 勤怠入力 */
 Route::get('/kintai_entry_api',function(){

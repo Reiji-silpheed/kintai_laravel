@@ -141,6 +141,13 @@
     </div><!-- /.modal -->
 
     {{-- 更新モーダル --}}
+    @if($errors->has('updateDate') || $errors->has('updateName'))
+        <script>
+            $(function(){
+                $("#updateModal").modal('show');
+            })
+        </script>
+    @endif
     <div class="modal fade modal-xl" id="updateModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -149,6 +156,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <form action="/holiday/edit" method="POST">
+                @csrf
                 <div class="container">
                     <div class="modal-body">
                         <div class="card">
@@ -160,12 +168,19 @@
                                     <div class="row">
                                         <div class="col-4">
                                             <label class="form-label">日付:</label>
-                                            <input type="dete" class="form-control" id="updateDate" name="updateDate">
+                                            <input type="date" class="form-control @error('updateDate') is-invalid @enderror" id="updateDate" name="updateDate">
+                                            @error('updateDate')
+                                                <span class="text-danger">{{$message}}</span>
+                                            @enderror
                                         </div>
                                         <div class="col-4">
                                             <label class="form-label">祝日名:</label>
-                                            <input type="text" class="form-control" id="updateName" name="updateName">
+                                            <input type="text" class="form-control @error('updateName') is-invalid @enderror" id="updateName" name="updateName">
+                                            @error('updateName')
+                                                <span class="text-danger">{{$message}}</span>
+                                            @enderror
                                         </div>
+                                        <input type="hidden" id="updateID" name="updateID">
                                     </div>
                                 </div>
                             </div>
@@ -190,6 +205,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
                 <form action="/holiday/delete" method="POST">
+                    @csrf
                     <div class="modal-body">
                         <p>選択した祝日は削除しますか？</p>
                         <input type="hidden" id="deleteID" name="deleteID">
@@ -217,6 +233,8 @@
             $(document).on("click","#updateBtn",function(){
                 var select=$("input[name='radio']:checked");
                 var row=select.closest("tr");
+                var id=row.find("td").eq(0).find("input").val();
+                $("#updateID").val(id);
                 var date=row.find("td").eq(1).text();
                 $("#updateDate").val(date);
                 var name=row.find("td").eq(2).text();
@@ -224,7 +242,9 @@
             })
             $(document).on("click","#deleteBtn",function(){
                 var select=$("input[name='radio']:checked");
-                $("#deleteID").val(select);
+                var row=select.closest("tr");
+                var id=row.find("td").eq(0).find("input").val();
+                $("#deleteID").val(id);
             })
         })
     </script>
