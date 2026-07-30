@@ -10,77 +10,81 @@
    @if($holidays->isEmpty())
         <div class="alert alert-warning" role="alert">検索結果がありませんでした</div>
     @endif
-    <div class="card">
-        <div class="card-header">
-            検索条件
-        </div>
-        <div class="card-body">
-            <form action="{{url('/holiday/form')}}" method="GET">
-                @csrf
-                <div class="container">
-                    <div class="row">
-                        <div class="col-4">
-                            <label class="form-label">日付:</label>
-                            <input type="date" class="form-control" name="searchDate" value="{{$searchDate}}">
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label">祝日名:</label>
-                            <input type="text" class="form-control" name="searchName" value="{{$searchName}}">
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                検索条件
+            </div>
+            <div class="card-body">
+                <form action="{{url('/holiday/form')}}" method="GET">
+                    @csrf
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-4">
+                                <label class="form-label">日付:</label>
+                                <input type="date" class="form-control" name="searchDate" value="{{$searchDate}}">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label">祝日名:</label>
+                                <input type="text" class="form-control" name="searchName" value="{{$searchName}}">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="container">
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="submit" class="btn btn-warning" name="action" value="clear">クリア</button>
-                        <button type="submit" class="btn btn-info" name="action" value="search">検索</button>
+                    <div class="container">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-warning" name="action" value="clear">クリア</button>
+                            <button type="submit" class="btn btn-info" name="action" value="search">検索</button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div class="card mt-4">
-        <div class="card-header">
-            検索結果
-        </div>
-        <div class="card-body">
-            <div class="container">
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <input type="button" id="newBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newModal" value="新規">
-                    <input type="button" id="updateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" value="更新" disabled>
-                    <input type="button" id="deleteBtn" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" value="削除" disabled>
-                </div>
-                <table class="table mt-2">
-                    <thead>
-                        <tr class="table-dark">
-                            <th>#</th>
-                            <th scope="col">日付</th>
-                            <th scope="col">祝日名</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($holidays as $holiday)
-                            <tr>
-                                <td>
-                                    <div class="form-check">
-                                        <input type="radio" class="form-check-input" name="radio" value="{{$holiday->id}}">
-                                    </div>
-                                </td>
-                                <td>{{$holiday->yyyymmdd}}</td>
-                                <td>{{$holiday->holiday_name}}</td>
+    <div class="container">
+        <div class="card mt-4">
+            <div class="card-header">
+                検索結果
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <input type="button" id="newBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newModal" value="新規">
+                        <input type="button" id="updateBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" value="更新" disabled>
+                        <input type="button" id="deleteBtn" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" value="削除" disabled>
+                    </div>
+                    <table class="table mt-2">
+                        <thead>
+                            <tr class="table-dark">
+                                <th>#</th>
+                                <th scope="col">日付</th>
+                                <th scope="col">祝日名</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item"><a class="page-link @if($active==1) disabled @endif" href="/holiday/page_front">前</a></li>
-                        @for($i=1;$i<=$pageNumber;$i++)
-                            <li class="page-item"><a class="page-link @if($active==$i) active @endif" href="{{route('holiday/page',['page'=>$i])}}">{{$i}}</a></li>
-                        @endfor
-                        <li class="page-item"><a class="page-link @if($active==$pageNumber || $pageNumber==0) disabled @endif" href="/holiday/page_next">次</a></li>
-                    </ul>
-                </nav>
+                        </thead>
+                        <tbody>
+                            @foreach($holidays as $holiday)
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="radio" class="form-check-input" name="radio" value="{{$holiday->id}}">
+                                        </div>
+                                    </td>
+                                    <td>{{$holiday->yyyymmdd}}</td>
+                                    <td>{{$holiday->holiday_name}}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item"><a class="page-link @if($active==1) disabled @endif" href="/holiday/page_front">前</a></li>
+                            @for($i=1;$i<=$pageNumber;$i++)
+                                <li class="page-item"><a class="page-link @if($active==$i) active @endif" href="{{route('holiday/page',['page'=>$i])}}">{{$i}}</a></li>
+                            @endfor
+                            <li class="page-item"><a class="page-link @if($active==$pageNumber || $pageNumber==0) disabled @endif" href="/holiday/page_next">次</a></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>
