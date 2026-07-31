@@ -10,7 +10,7 @@
                     <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updateModal" @click="modal" :disabled="selected===''">更新</button>
                     <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#deleteModal" :disabled="selected===''">削除</button>
                 </div>
-                <table class="table mt-2">
+                <table class="table mt-2" id="kintaiEntryTable">
                     <thead class="table-dark">
                         <tr>
                             <th>#</th>
@@ -115,3 +115,4 @@ export default{
 
 }
 </script>
+

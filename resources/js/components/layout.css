@@ -1,0 +1,38 @@
+#kintaiEntryTable{
+    width:100%;
+    table-layout: fixed;
+}
+
+#kintaiEntryTable th:nth-child(1),
+#kintaiEntryTable td:nth-child(1){
+    width:3%
+}
+#kintaiEntryTable th:nth-child(2),
+#kintaiEntryTable td:nth-child(2){
+    width:4%
+}
+#kintaiEntryTable th:nth-child(3),
+#kintaiEntryTable td:nth-child(3){
+    width:9%
+}
+#kintaiEntryTable th:nth-child(4),
+#kintaiEntryTable td:nth-child(4){
+    width:10%
+}
+#kintaiEntryTable th:nth-child(5),
+#kintaiEntryTable td:nth-child(5){
+    width:10%
+}
+#kintaiEntryTable th:nth-child(6),
+#kintaiEntryTable td:nth-child(6){
+    width:10%
+}
+#kintaiEntryTable th:nth-child(7),
+#kintaiEntryTable td:nth-child(7){
+    width:10%
+}
+#kintaiEntryTable th:nth-child(8),
+#kintaiEntryTable td:nth-child(8){
+    width:45%
+}
+

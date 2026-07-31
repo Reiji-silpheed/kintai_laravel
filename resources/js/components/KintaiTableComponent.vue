@@ -9,7 +9,7 @@
                     <button type="button" class="btn btn-primary">保存</button>
                     <button type="button" class="btn btn-success">申請</button>
                 </div>
-                <table class="table mt-2 align-middle">
+                <table class="table mt-2 align-middle" id="kintaiEntryTable">
                     <thead>
                         <tr class="table-dark">
                             <th>日</th>
@@ -23,7 +23,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="text-center" v-for="n in lastDay+1" :key="n">
+                        <tr class="text-center" v-for="n in lastDay" :key="n">
                             <td class="bg-info-subtle text-info" v-if="weekDay[n-1]=='土'">
                                 {{n}}
                             </td>
@@ -44,24 +44,24 @@
                             </td>
                             <td class="bg-info-subtle" v-if="weekDay[n-1]=='土'">
                                 <select class="form-select">
-                                    <option>休日</option>
-                                    <option>休出</option>
+                                    <option value="holiday">休日</option>
+                                    <option value="work">休出</option>
                                 </select>
                             </td>
                             <td class="bg-danger-subtle" v-else-if="weekDay[n-1]=='日'">
                                 <select class="form-select">
-                                    <option>休日</option>
-                                    <option>休出</option>
+                                    <option value="holiday">休日</option>
+                                    <option value="work">休出</option>
                                 </select>
                             </td>
                             <td v-else>
                                 <select class="form-select">
-                                    <option>出勤</option>
-                                    <option>有給</option>
-                                    <option>欠勤</option>
-                                    <option>特休</option>
-                                    <option>代休</option>
-                                    <option>振休</option>
+                                    <option value="work">出勤</option>
+                                    <option value="holiday">有給</option>
+                                    <option value="holiday">欠勤</option>
+                                    <option value="holiday">特休</option>
+                                    <option value="holiday">代休</option>
+                                    <option value="holiday">振休</option>
                                 </select>
                             </td>
                             <td class="bg-info-subtle" v-if="weekDay[n-1]=='土'">
@@ -120,7 +120,7 @@
 <script>
 export default{
     name:'NumberList',
-    props:{item:[],
+    props:{items:[],
         weekDay:[],
         lastDay:""
     },
@@ -129,3 +129,5 @@ export default{
     }
 };
 </script>
+
+<style scoped src="./layout.css"></style>
