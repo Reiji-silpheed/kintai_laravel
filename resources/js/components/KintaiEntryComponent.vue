@@ -17,12 +17,12 @@
                     </div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="button" class="btn btn-primary" @click="display">表示</button>
+                    <button type="button" class="btn btn-info" @click="display">表示</button>
                 </div>
             </div>
         </div>
     </div>
-    <kintai-table-component :items="items" :weekDay="weekDay" :lastDay="lastDay" :month="month" ></kintai-table-component>
+    <kintai-table-component :items="items" :holidays="holidays" :holidayName="holidayName" :weekDay="weekDay" :lastDay="lastDay" :month="month" ></kintai-table-component>
 </template>
 
 <script>
@@ -32,7 +32,8 @@ export default{
     data(){
         return{
             items:[],
-            holiday:[],
+            holidays:[],
+            holidayName:[],
             weekDay:[],
             month:"",
             lastDay:"",
@@ -45,7 +46,6 @@ export default{
     },
     methods:{
         async hello(){
-            let res=await axios.get("api/kintai_entry_api");
             const today=new Date();
             let year=today.getFullYear();
             let month=today.getMonth();
@@ -57,10 +57,24 @@ export default{
             }
             const lastDay=new Date(year,month+1,0).getDate();
             this.lastDay=lastDay;
+            let date=[];
+            for(let i=1;i<=lastDay;i++){
+                let yyyymmdd="";
+                if(i<=9){
+                    yyyymmdd=this.month+"-0"+i
+                }
+                else{
+                    yyyymmdd=this.month+"-"+i;
+                }
+                date.push(yyyymmdd)
+            }
+            let res=await axios.get("api/kintai_entry_api",{params:{'date':date}});
             const items=res.data.items;
             this.items=items;
             const holidays=res.data.holidays;
             this.holidays=holidays;
+            const holidayName=res.data.holidayName;
+            this.holidayName=holidayName;
             const weekDays=["日","月","火","水","木","金","土"];
             const weekName=[];
             for(let i=1;i<=lastDay;i++){
@@ -73,7 +87,6 @@ export default{
         async display(){
             this.error={};
             try{
-                let res=await axios.get("api/kintai_entry_api/display",{params:{month:this.month}});
                 const display=this.month;
                 let year=display.slice(0,4);
                 let month=display.slice(5,6);
@@ -85,6 +98,18 @@ export default{
                 }
                 const lastDay=new Date(year,month+1,0).getDate();
                 this.lastDay=lastDay;
+                let date=[];
+                for(let i=1;i<=lastDay;i++){
+                    let yyyymmdd="";
+                    if(i<=9){
+                        yyyymmdd=this.month+"-0"+i;
+                    }
+                    else{
+                        yyyymmdd=this.month+"-"+i;
+                    }
+                    date.push(yyyymmdd);
+                }
+                let res=await axios.get("api/kintai_entry_api/display",{params:{month:this.month,'date':date}});
                 const weekDays=["日","月","火","水","木","金","土"];
                 const weekName=[];
                 for(let i=1;i<=lastDay;i++){
@@ -97,6 +122,8 @@ export default{
                 this.items=items;
                 const holidays=res.data.holidays;
                 this.holidays=holidays;
+                const holidayName=res.data.holidayName;
+                this.holidayName=holidayName;
             }
             catch(error){
                 this.error=error.response.data.errors;
