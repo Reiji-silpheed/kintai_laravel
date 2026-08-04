@@ -53,6 +53,6 @@ class User extends Authenticatable
 
     public function attendance_head():HasOne
     {
-        return $this->hasOne(Attendance_Head::class);
+        return $this->hasOne(AttendanceHead::class);
     }
 }

@@ -35,7 +35,8 @@ class HolidayController extends Controller
             'pageNumber'=>$pageNumber,
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
-            'active'=>$active
+            'active'=>$active,
+            'id'=>session('id')
         ];
         return view('holiday.index',$data);
     }
@@ -53,7 +54,8 @@ class HolidayController extends Controller
                 'pageNumber'=>$pageNumber,
                 'searchDate'=>$searchDate,
                 'searchName'=>$searchName,
-                'active'=>$active
+                'active'=>$active,
+                'id'=>session('id')
             ];
             return view('holiday.index',$data);
         }
@@ -89,7 +91,8 @@ class HolidayController extends Controller
                 'pageNumber'=>$pageNumber,
                 'searchDate'=>$searchDate,
                 'searchName'=>$searchName,
-                'active'=>$active
+                'active'=>$active,
+                'id'=>session('id')
             ];
             return view('holiday.index',$data);
         }
@@ -134,7 +137,8 @@ class HolidayController extends Controller
             'pageNumber'=>$pageNumber,
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
-            'active'=>$active
+            'active'=>$active,
+            'id'=>session('id')
         ];
         return view('holiday.index',$data);
     }
@@ -178,7 +182,8 @@ class HolidayController extends Controller
             'pageNumber'=>$pageNumber,
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
-            'active'=>$active
+            'active'=>$active,
+            'id'=>session('id')
         ];
         return view('holiday.index',$data);
     }
@@ -222,7 +227,8 @@ class HolidayController extends Controller
             'pageNumber'=>$pageNumber,
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
-            'active'=>$active
+            'active'=>$active,
+            'id'=>session('id')
         ];
         return view('holiday.index',$data);
     }

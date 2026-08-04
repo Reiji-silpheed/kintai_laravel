@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
         ]); */
 
         $this->call([
-            /* UsersTableSeeder::class
-            HolidayTableSeeder::class */
+            UsersTableSeeder::class,
+            HolidayTableSeeder::class
         ]);
     }
 }

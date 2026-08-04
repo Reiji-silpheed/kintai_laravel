@@ -21,10 +21,10 @@ Route::controller(LoginController::class)->group(function(){
 
 /* 社員マスタ管理 */
 Route::get('/employee_api',function(){
-    if(session('role_cd')=='gereral'){
+    if(session('role_cd')=='general'){
         return redirect('/login');
     }
-    return view('vue.employee_api');
+    return view('vue.employee_api',['id'=>session('id')]);
 })->middleware('auth');
 
 /* 祝日マスタ管理 */
@@ -40,7 +40,7 @@ Route::controller(HolidayController::class)->group(function(){
 })->middleware('auth');
 /* 勤怠入力 */
 Route::get('/kintai_entry_api',function(){
-    return view('vue.kintai_entry_api');
+    return view('vue.kintai_entry_api',['id'=>session('id')]);
 })->middleware('auth');
 
 /* 勤怠管理 */

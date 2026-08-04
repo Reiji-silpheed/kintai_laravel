@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('user_id');
             $table->string('yyyymm',6);
             $table->string('status',1);
-            $table->string('reject_comment',500);
+            $table->string('reject_comment',500)->nullable();
             $table->timestamps();
         });
     }

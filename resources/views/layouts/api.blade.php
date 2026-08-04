@@ -16,3 +16,10 @@
         </div>
     </body>
 </html>
+
+<script>
+    /* window:Vue(Javascriptファイル)から値を参照する */
+    window.login = {
+        'id':{{$id}},
+    };
+</script>

@@ -10,7 +10,6 @@ class KintaiMasterController extends Controller
 {
     public function index(Request $request,Response $response):View
     {
-
-        return view('kintai_master.index');
+        return view('kintai_master.index',['id'=>session('id')]);
     }
 }

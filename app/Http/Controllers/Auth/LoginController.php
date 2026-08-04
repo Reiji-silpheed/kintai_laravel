@@ -23,7 +23,7 @@ class LoginController extends Controller
     public function login(LoginRequest $request)
     {
         $user = User::where('email', $request->loginEmail)->first();
-
+        $request->session()->put('id',$user->id);
         /* ログイン済みであることを認識させる */
         Auth::login($user);
         if($user['role_cd']==0){

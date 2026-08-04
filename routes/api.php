@@ -15,6 +15,7 @@ Route::post('employee_api/delete',[EmployeeController::class,'delete']);
 
 Route::get('kintai_entry_api',[KintaiEntryController::class,'index']);
 Route::get('kintai_entry_api/display',[KintaiEntryController::class,'display']);
+Route::post('kintai_entry_api/save',[KintaiEntryController::class,'save']);
 
 
 Route::get('/user', function (Request $request) {
