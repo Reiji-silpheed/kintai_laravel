@@ -99,5 +99,6 @@ class KintaiEntryController extends Controller
                 DB::rollBack();
             }
         }
+
     }
 }

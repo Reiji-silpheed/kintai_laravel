@@ -25,7 +25,7 @@ class LoginRule implements ValidationRule
     {
         $this->inputEmail=request()->input($this->email);
         $user=DB::table('users')->where('email',$this->inputEmail)->first();
-        if(!is_null($this->inputEmail) && $user->password!==$value){
+        if(!is_null($user) && $user->password!==$value){
             $fail('メールアドレスまたはパスワードが間違っています');
         }
     }

@@ -48,6 +48,8 @@ class EmployeeEditRequest extends FormRequest
             'updateRole_cd.required'=>'権限は必須項目です',
             'updateEmail.required'=>'メールアドレスは必須項目です',
             'updateEmail.email'=>'メールアドレス形式で入力してください',
+            'updateEmail.regex'=>'メールアドレスは半角で入力してください',
+            'updateEmail.email'=>'メールアドレス形式で入力してください',
             'updateEmail.regex'=>'メールアドレスは半角で入力してください'
         ];
     }

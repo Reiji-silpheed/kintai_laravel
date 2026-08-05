@@ -39,7 +39,7 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+        ->when(!is_null($searchRole_cd), function ($query) use ($searchRole_cd) {
             return $query->where('role_cd', $searchRole_cd);
         })
         ->get();
@@ -56,7 +56,7 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when(!is_null($request->input('searchRole_cd')), function ($query) use ($searchRole_cd) {
+        ->when(!is_null($searchRole_cd), function ($query) use ($searchRole_cd) {
             return $query->where('role_cd', $searchRole_cd);
         })
         ->orderBy('id','asc')->offset(0)->limit(5)->get();
@@ -84,7 +84,7 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when(!is_null($request->input('createSearch.4')), function ($query) use ($searchRole_cd) {
+        ->when(!is_null($searchRole_cd), function ($query) use ($searchRole_cd) {
             return $query->where('role_cd', $searchRole_cd);
         })
         ->get();
@@ -101,7 +101,7 @@ class EmployeeController extends Controller
         ->when($searchDate,function($query,$searchDate){
             return $query->where('start_date',$searchDate);
         })
-        ->when(!is_null($request->input('createSearch.4')), function ($query) use ($searchRole_cd) {
+        ->when(!is_null($searchRole_cd), function ($query) use ($searchRole_cd) {
             return $query->where('role_cd', $searchRole_cd);
         })
         ->orderBy('id','asc')->offset($offset)->limit(5)->get();

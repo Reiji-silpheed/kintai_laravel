@@ -368,6 +368,7 @@ export default{
                 });
                 this.error={};
                 this.disabled=true;
+                console.log(this.page);
                 this.pageChange(this.page);
             }
             catch(error){
