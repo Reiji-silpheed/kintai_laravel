@@ -30,13 +30,19 @@ class HolidayController extends Controller
         $request->session()->put('searchName',$searchName);
         $active=1;
         $request->session()->put('page',$active);
+        $request->session()->put('newAlert',false);
+        $request->session()->put('updateAlert',false);
+        $request->session()->put('deleteAlert',false);
         $data=[
             'holidays'=>$holidays,
             'pageNumber'=>$pageNumber,
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
             'active'=>$active,
-            'id'=>session('id')
+            'id'=>session('id'),
+            'newAlert'=>session('newAlert'),
+            'updateAlert'=>session('updateAlert'),
+            'deleteAlert'=>session('deleteAlert')
         ];
         return view('holiday.index',$data);
     }
@@ -55,7 +61,10 @@ class HolidayController extends Controller
                 'searchDate'=>$searchDate,
                 'searchName'=>$searchName,
                 'active'=>$active,
-                'id'=>session('id')
+                'id'=>session('id'),
+                'newAlert'=>session('newAlert'),
+                'updateAlert'=>session('updateAlert'),
+                'deleteAlert'=>session('deleteAlert')
             ];
             return view('holiday.index',$data);
         }
@@ -86,13 +95,19 @@ class HolidayController extends Controller
             $request->session()->put('pageNumber',$pageNumber);
             $active=1;
             $request->session()->put('page',$active);
+            $request->session()->put('newAlert',false);
+            $request->session()->put('updateAlert',false);
+            $request->session()->put('deleteAlert',false);
             $data=[
                 'holidays'=>$holidays,
                 'pageNumber'=>$pageNumber,
                 'searchDate'=>$searchDate,
                 'searchName'=>$searchName,
                 'active'=>$active,
-                'id'=>session('id')
+                'id'=>session('id'),
+                'newAlert'=>session('newAlert'),
+                'updateAlert'=>session('updateAlert'),
+                'deleteAlert'=>session('deleteAlert')
             ];
             return view('holiday.index',$data);
         }
@@ -138,7 +153,10 @@ class HolidayController extends Controller
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
             'active'=>$active,
-            'id'=>session('id')
+            'id'=>session('id'),
+            'newAlert'=>session('newAlert'),
+            'updateAlert'=>session('updateAlert'),
+            'deleteAlert'=>session('deleteAlert')
         ];
         return view('holiday.index',$data);
     }
@@ -183,7 +201,10 @@ class HolidayController extends Controller
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
             'active'=>$active,
-            'id'=>session('id')
+            'id'=>session('id'),
+            'newAlert'=>session('newAlert'),
+            'updateAlert'=>session('updateAlert'),
+            'deleteAlert'=>session('deleteAlert')
         ];
         return view('holiday.index',$data);
     }
@@ -228,7 +249,10 @@ class HolidayController extends Controller
             'searchDate'=>$searchDate,
             'searchName'=>$searchName,
             'active'=>$active,
-            'id'=>session('id')
+            'id'=>session('id'),
+            'newAlert'=>session('newAlert'),
+            'updateAlert'=>session('updateAlert'),
+            'deleteAlert'=>session('deleteAlert')
         ];
         return view('holiday.index',$data);
     }
@@ -238,6 +262,9 @@ class HolidayController extends Controller
         $newDate=$request->input('newDate');
         $newName=$request->input('newName');
         $page=$request->session()->get('page');
+        $request->session()->put('newAlert',false);
+        $request->session()->put('updateAlert',false);
+        $request->session()->put('deleteAlert',false);
         try{
             $holidays=new Holiday();
             $holidays->fill([
@@ -246,6 +273,7 @@ class HolidayController extends Controller
             ]);
             $holidays->save();
             DB::commit();
+            $request->session()->put('newAlert',true);
             return redirect("/holiday/page/{$page}");
         }
         catch(\Exception $ex){
@@ -260,6 +288,9 @@ class HolidayController extends Controller
         $updateDate=$request->input('updateDate');
         $updateName=$request->input('updateName');
         $page=$request->session()->get('page');
+        $request->session()->put('newAlert',false);
+        $request->session()->put('updateAlert',false);
+        $request->session()->put('deleteAlert',false);
         try{
             $holidays=Holiday::find($updateID);
             $holidays->fill([
@@ -269,6 +300,7 @@ class HolidayController extends Controller
             ]);
             $holidays->save();
             DB::commit();
+            $request->session()->put('updateAlert',true);
             return redirect("/holiday/page/{$page}");
         }
         catch(\Exception $ex){
@@ -281,11 +313,15 @@ class HolidayController extends Controller
         DB::beginTransaction();
         $deleteID=$request->input('deleteID');
         $page=$request->session()->get('page');
+        $request->session()->put('newAlert',false);
+        $request->session()->put('updateAlert',false);
+        $request->session()->put('deleteAlert',false);
         try{
             $holidays=Holiday::find($deleteID);
             $holidays->delete();
             DB::commit();
-            return redirect("/holiday/page/{$page}");
+            $request->session()->put('deleteAlert',true);
+            return redirect("/holiday/page/{$page}",);
         }
         catch(\Exception $ex){
             DB::rollBack();

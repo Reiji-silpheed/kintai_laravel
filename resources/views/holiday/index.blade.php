@@ -7,8 +7,17 @@
 
 @section('content')
     @parent
-   @if($holidays->isEmpty())
+    @if($holidays->isEmpty())
         <div class="alert alert-warning" role="alert">検索結果がありませんでした</div>
+    @endif
+    @if($newAlert)
+        <div class="alert alert-success" role="alert">新規登録処理がされました。</div>
+    @endif
+    @if($updateAlert)
+        <div class="alert alert-primary" role="alert">更新処理がされました。</div>
+    @endif
+    @if($deleteAlert)
+        <div class="alert alert-danger" role="alert">削除処理がされました。</div>
     @endif
     <div class="container">
         <div class="card">

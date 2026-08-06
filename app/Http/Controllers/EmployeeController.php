@@ -127,6 +127,11 @@ class EmployeeController extends Controller
             ]);
             $items->save();
             DB::commit();
+            $newAlert=true;
+            $data=[
+                'newAlert'=>$newAlert
+            ];
+            return $data;
         }
         catch(\Exception $ex){
             DB::rollBack();
@@ -172,6 +177,11 @@ class EmployeeController extends Controller
             }
             $item->save();
             DB::commit();
+            $updateAlert=true;
+            $data=[
+                "updateAlert"=>$updateAlert
+            ];
+            return $data;
         }
         catch(\Exception $ex){
             DB::rollBack();
@@ -186,7 +196,12 @@ class EmployeeController extends Controller
             $item=User::find($selected);
             $item->delete();
             DB::commit();
-            return $count;
+            $deleteAlert=true;
+            $data=[
+                "count"=>$count,
+                "deleteAlert"=>$deleteAlert
+            ];
+            return $data;
         }
         catch(\Exception $ex){
             DB::rollBack();

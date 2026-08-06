@@ -1,6 +1,15 @@
 <template>
-    <div v-if="alert">
+    <div v-if="searchAlert">
         <div class="alert alert-warning" role="alert">検索結果がありませんでした。</div>
+    </div>
+    <div v-if="newAlert">
+        <div class="alert alert-success" role="alert">新規登録がされました。</div>
+    </div>
+    <div v-if="updateAlert">
+        <div class="alert alert-primary" role="alert">更新処理がされました。</div>
+    </div>
+    <div v-if="deleteAlert">
+        <div class="alert alert-danger" role="alert">削除処理がされました。</div>
     </div>
     <div class="container">
         <div class="card">
@@ -243,6 +252,7 @@ export default{
             searchEmail:"",
             searchDate:"",
             searchRole_cd:"",
+            searchAlert:false,
             newNumber:"",
             newName:"",
             newDate:"",
@@ -250,9 +260,11 @@ export default{
             newEmail:"",
             newPassword:"",
             newCheckPassword:"",
+            newAlert:false,
             updatePassword:"",
             updateCheckPassword:"",
-            alert:false,
+            updateAlert:"",
+            deleteAlert:"",
             page:"",
             resetPage:0,
             offset:1,
@@ -277,7 +289,10 @@ export default{
             this.offset=Math.ceil(offset);
         },
         async search(){
-            this.alert=false;
+            this.searchAlert=false;
+            this.newAlert=false;
+            this.updateAlert=false;
+            this.deleteAlert=false;
             this.disabled=false;
             let res=await axios.get("/api/employee_api/search?searchNumber="+this.searchNumber+"&searchName="+this.searchName+"&searchEmail="+this.searchEmail+"&searchDate="+this.searchDate+"&searchRole_cd="+this.searchRole_cd);
             this.createSearch=[
@@ -294,7 +309,7 @@ export default{
             this.resetPage=1;
             this.offset=Math.ceil(offset);
             if(count.length===0){
-                this.alert=true;
+                this.searchAlert=true;
             }
             this.disabled=true;
         },
@@ -322,6 +337,9 @@ export default{
             this.disabled=true;
         },
         async addItem(){
+            this.newAlert=false;
+            this.updateAlert=false;
+            this.deleteAlert=false;
             try{
                 let res=await axios.post("/api/employee_api/add",{
                     newNumber:this.newNumber,
@@ -341,6 +359,8 @@ export default{
                 this.newCheckPassword="";
                 this.error={};
                 this.pageChange(this.page);
+                let data=res.data.newAlert;
+                this.newAlert=data;
             }
             catch(error){
                 this.error=error.response.data.errors;
@@ -355,6 +375,9 @@ export default{
         },
         async editItem(){
             this.disabled=false;
+            this.newAlert=false;
+            this.updateAlert=false;
+            this.deleteAlert=false;
             try{
                 let res=await axios.post("/api/employee_api/edit",{
                     selected:this.updateData.id,
@@ -368,7 +391,8 @@ export default{
                 });
                 this.error={};
                 this.disabled=true;
-                console.log(this.page);
+                let data=res.data.updateAlert;
+                this.updateAlert=data;
                 this.pageChange(this.page);
             }
             catch(error){
@@ -378,9 +402,14 @@ export default{
         },
         async deleteItem(){
             this.disabled=false;
+            this.newAlert=false;
+            this.updateAlert=false;
+            this.deleteAlert=false;
             try{
                 let res=await axios.post("/api/employee_api/delete",{radio:this.radio});
                 this.disabled=true;
+                let data=res.data.deleteAlert;
+                this.deleteAlert=data;
                 this.pageChange(this.page);
             }
             catch(error){
