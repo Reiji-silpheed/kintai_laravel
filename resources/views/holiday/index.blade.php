@@ -8,7 +8,7 @@
 @section('content')
     @parent
     @if($holidays->isEmpty())
-        <div class="alert alert-warning" role="alert">検索結果がありませんでした</div>
+        <div class="alert alert-warning" role="alert">検索結果がありませんでした。</div>
     @endif
     @if($newAlert)
         <div class="alert alert-success" role="alert">新規登録処理がされました。</div>

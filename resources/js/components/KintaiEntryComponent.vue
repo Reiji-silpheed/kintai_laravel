@@ -2,6 +2,9 @@
    <div v-if="error.month">
         <div class="alert alert-danger" role="alert">{{error.month[0]}}</div>
    </div>
+   <div v-if="updateAlert">
+        <div class="alert alert-primary" role="alert">保存が完了しました</div>
+   </div>
     <div class="container">
         <div class="card">
             <div class="card-header">
@@ -22,7 +25,7 @@
             </div>
         </div>
     </div>
-    <kintai-table-component :items="items" :holidays="holidays" :holidayName="holidayName" :weekDay="weekDay" :lastDay="lastDay" :month="month" ></kintai-table-component>
+    <kintai-table-component :items="items" :holidays="holidays" :holidayName="holidayName" :attendance_details="attendance_details" :weekDay="weekDay" :lastDay="lastDay" :month="month" @updateAlert="updateAlert=$event"></kintai-table-component>
 </template>
 
 <script>
@@ -34,9 +37,11 @@ export default{
             items:[],
             holidays:[],
             holidayName:[],
+            attendance_details:[],
             weekDay:[],
             month:"",
             lastDay:"",
+            updateAlert:"",
             error:{}
         }
 
@@ -49,11 +54,14 @@ export default{
             const today=new Date();
             let year=today.getFullYear();
             let month=today.getMonth();
+            let yyyymm="";
             if(month>=9){
                 this.month=year+"-"+(month+1);
+                yyyymm=`${year}${month+1}`
             }
             else{
                 this.month=year+"-0"+(month+1);
+                yyyymm=`${year}0${month+1}`
             }
             const lastDay=new Date(year,month+1,0).getDate();
             this.lastDay=lastDay;
@@ -68,13 +76,19 @@ export default{
                 }
                 date.push(yyyymmdd)
             }
-            let res=await axios.get("api/kintai_entry_api",{params:{'date':date}});
+            let res=await axios.get("api/kintai_entry_api",{params:{
+                'date':date,
+                'yyyymm':yyyymm,
+                'id':window.login.id
+                }});
             const items=res.data.items;
             this.items=items;
             const holidays=res.data.holidays;
             this.holidays=holidays;
             const holidayName=res.data.holidayName;
             this.holidayName=holidayName;
+            const attendance_details=res.data.attendance_details;
+            this.attendance_details=attendance_details;
             const weekDays=["日","月","火","水","木","金","土"];
             const weekName=[];
             for(let i=1;i<=lastDay;i++){
@@ -86,15 +100,19 @@ export default{
         },
         async display(){
             this.error={};
+            this.updateAlert=false;
             try{
                 const display=this.month;
                 let year=display.slice(0,4);
                 let month=display.slice(5,6);
+                let yyyymm="";
                 if(month==0){
                     month=display.slice(6,7)-1;
+                    yyyymm=`${year}0${month+1}`;
                 }
                 else{
-                    month=display.slice(6,8)-1;
+                    month=display.slice(5,8)-1;
+                    yyyymm=`${year}${month+1}`;
                 }
                 const lastDay=new Date(year,month+1,0).getDate();
                 this.lastDay=lastDay;
@@ -109,7 +127,12 @@ export default{
                     }
                     date.push(yyyymmdd);
                 }
-                let res=await axios.get("api/kintai_entry_api/display",{params:{month:this.month,'date':date}});
+                let res=await axios.get("api/kintai_entry_api/display",{params:{
+                    month:this.month,
+                    date:date,
+                    yyyymm:yyyymm,
+                    id:window.login.id
+                    }});
                 const weekDays=["日","月","火","水","木","金","土"];
                 const weekName=[];
                 for(let i=1;i<=lastDay;i++){
@@ -124,6 +147,8 @@ export default{
                 this.holidays=holidays;
                 const holidayName=res.data.holidayName;
                 this.holidayName=holidayName;
+                const attendance_details=res.data.attendance_details;
+                this.attendance_details=attendance_details;
             }
             catch(error){
                 this.error=error.response.data.errors;
