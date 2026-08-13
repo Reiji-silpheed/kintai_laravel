@@ -46,6 +46,7 @@ Route::get('/kintai_entry_api',function(){
 /* 勤怠管理 */
 Route::controller(KintaiMasterController::class)->group(function(){
     Route::get('kintai_master','index')->middleware('auth');
+    Route::get('kintai_master/form','searchCondition');
 });
 
 

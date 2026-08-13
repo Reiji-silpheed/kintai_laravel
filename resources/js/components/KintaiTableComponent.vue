@@ -6,8 +6,8 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="button" class="btn btn-primary" @click="save">保存</button>
-                    <button type="button" class="btn btn-success">申請</button>
+                    <button type="button" class="btn btn-primary" @click="save" :disabled="disabled">保存</button>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#appModal" :disabled="disabled">申請</button>
                 </div>
                 <table class="table mt-2 align-middle" id="kintaiEntryTable">
                     <thead>
@@ -33,13 +33,13 @@
                                 {{weekDay[n-1]}}
                             </td>
                             <td :class="tdClass(n-1)" v-if="holidayCheck[n-1]===true">
-                                <select class="form-select" v-model="kubun[n-1]" @change="select(n-1)">
+                                <select class="form-select" v-model="kubun[n-1]" @change="select(n-1)" :disabled="disabled">
                                     <option value="2">休日</option>
                                     <option value="4">休出</option>
                                 </select>
                             </td>
                             <td :class="tdClass(n-1)" v-else>
-                                <select class="form-select" v-model="kubun[n-1]" @change="select(n-1)">
+                                <select class="form-select" v-model="kubun[n-1]" @change="select(n-1)" :disabled="disabled">
                                     <option value="1">出勤</option>
                                     <option value="3">有給</option>
                                     <option value="5">欠勤</option>
@@ -49,25 +49,25 @@
                                 </select>
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="time" class="form-control" v-model="tdStartTime[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'">
+                                <input type="time" class="form-control" v-model="tdStartTime[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'" :disabled="disabled">
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="time" class="form-control" v-model="tdEndTime[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'">
+                                <input type="time" class="form-control" v-model="tdEndTime[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'" :disabled="disabled">
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="time" class="form-control" v-model="tdLunchBreak[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'">
+                                <input type="time" class="form-control" v-model="tdLunchBreak[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'" :disabled="disabled">
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="time" class="form-control" v-model="tdNightBreak[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'">
+                                <input type="time" class="form-control" v-model="tdNightBreak[n-1]" @change="time(n-1)" :readonly="kubun[n-1]!=='1' && kubun[n-1]!=='4'" :disabled="disabled">
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="time" class="form-control" v-model="tdWorkTime[n-1]" readonly>
+                                <input type="time" class="form-control" v-model="tdWorkTime[n-1]" readonly :disabled="disabled">
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="time" class="form-control" v-model="tdOverTime[n-1]" readonly>
+                                <input type="time" class="form-control" v-model="tdOverTime[n-1]" readonly :disabled="disabled">
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="text" class="form-control" v-model="holidayName[n-1]">
+                                <input type="text" class="form-control" v-model="holidayName[n-1]" :disabled="disabled">
                             </td>
                         </tr>
                     </tbody>
@@ -75,6 +75,23 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="appModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h1 class="modal-title fs-5 text-white">勤怠申請</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <p>入力した勤怠を申請しますか？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="app">申請</button>
+            </div><!-- /.modal-footer -->
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 </template>
 
 <script>
@@ -87,7 +104,8 @@ export default{
         attendance_details:[],
         weekDay:[],
         lastDay:"",
-        month:""
+        month:"",
+        disabled:""
     },
     data(){
         return{
@@ -101,6 +119,7 @@ export default{
             tdOverTime:[],
             holidayCheck:[],
             updateAlert:false,
+            appAlert:false
         }
     },
     watch:{
@@ -269,10 +288,34 @@ export default{
             })
             let data=res.data.updateAlert;
             this.updateAlert=data;
-            console.log(this.updateAlert);
             if(this.updateAlert===true){
-                this.$emit('updateAlert',true)
+                this.$emit('updateAlert',true);
             }
+        },
+        async app(){
+            const display=this.month;
+            let year=display.slice(0,4);
+            let month=display.slice(5,7);
+            let yyyymm=year+month;
+            let res=await axios.post('api/kintai_entry_api/app',{
+                id:window.login.id,
+                yyyymm:yyyymm,
+                day:this.day,
+                kbn:this.kubun,
+                start_time:this.tdStartTime,
+                end_time:this.tdEndTime,
+                rest_time:this.tdLunchBreak,
+                night_rest_time:this.tdNightBreak,
+                work_time:this.tdWorkTime,
+                over_time:this.tdOverTime,
+                remarks:this.holidayName
+            })
+            let data=res.data.appAlert;
+            this.appAlert=data;
+            if(this.appAlert==true){
+                this.$emit('appAlert',true);
+            }
+            this.$emit('appDisabled',true);
         }
     }
 };

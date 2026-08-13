@@ -1,10 +1,13 @@
 <template>
-   <div v-if="error.month">
-        <div class="alert alert-danger" role="alert">{{error.month[0]}}</div>
-   </div>
-   <div v-if="updateAlert">
-        <div class="alert alert-primary" role="alert">保存が完了しました</div>
-   </div>
+    <div v-if="error.month">
+            <div class="alert alert-danger" role="alert">{{error.month[0]}}</div>
+    </div>
+    <div v-if="updateAlert">
+            <div class="alert alert-primary" role="alert">保存が完了しました。</div>
+    </div>
+    <div v-if="appAlert">
+        <div class="alert alert-success" role="alert">申請が完了しました。</div>
+    </div>
     <div class="container">
         <div class="card">
             <div class="card-header">
@@ -25,7 +28,7 @@
             </div>
         </div>
     </div>
-    <kintai-table-component :items="items" :holidays="holidays" :holidayName="holidayName" :attendance_details="attendance_details" :weekDay="weekDay" :lastDay="lastDay" :month="month" @updateAlert="updateAlert=$event"></kintai-table-component>
+    <kintai-table-component :items="items" :holidays="holidays" :holidayName="holidayName" :attendance_details="attendance_details" :disabled="disabled" :weekDay="weekDay" :lastDay="lastDay" :month="month" @updateAlert="updateAlert=$event" @appAlert="appAlert=$event" @appDisabled="disabled=$event"></kintai-table-component>
 </template>
 
 <script>
@@ -41,7 +44,9 @@ export default{
             weekDay:[],
             month:"",
             lastDay:"",
+            disabled:"",
             updateAlert:"",
+            appAlert:"",
             error:{}
         }
 
@@ -89,6 +94,8 @@ export default{
             this.holidayName=holidayName;
             const attendance_details=res.data.attendance_details;
             this.attendance_details=attendance_details;
+            const disabled=res.data.disabled;
+            this.disabled=disabled;
             const weekDays=["日","月","火","水","木","金","土"];
             const weekName=[];
             for(let i=1;i<=lastDay;i++){
@@ -101,6 +108,7 @@ export default{
         async display(){
             this.error={};
             this.updateAlert=false;
+            this.appAlert=false;
             try{
                 const display=this.month;
                 let year=display.slice(0,4);
@@ -131,7 +139,7 @@ export default{
                     month:this.month,
                     date:date,
                     yyyymm:yyyymm,
-                    id:window.login.id
+                    id:window.login.id,
                     }});
                 const weekDays=["日","月","火","水","木","金","土"];
                 const weekName=[];
@@ -149,6 +157,8 @@ export default{
                 this.holidayName=holidayName;
                 const attendance_details=res.data.attendance_details;
                 this.attendance_details=attendance_details;
+                const disabled=res.data.disabled;
+                this.disabled=disabled;
             }
             catch(error){
                 this.error=error.response.data.errors;

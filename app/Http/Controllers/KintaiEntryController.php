@@ -41,15 +41,23 @@ class KintaiEntryController extends Controller
         }
         if(!$attendance_heads->isEmpty()){
             $attendance_details=AttendanceDetail::where('attendance_head_id',$attendance_heads[0]->id)->get();
+            if($attendance_heads[0]->status==="1"){
+                $disabled=true;
+            }
+            else{
+                $disabled=false;
+            }
         }
         else{
             $attendance_details=[];
+            $disabled=false;
         }
         $data=[
             'items'=>$items,
             'holidays'=>$holidays,
             'holidayName'=>$holidayName,
-            'attendance_details'=>$attendance_details
+            'attendance_details'=>$attendance_details,
+            'disabled'=>$disabled
         ];
         return $data;
     }
@@ -79,15 +87,23 @@ class KintaiEntryController extends Controller
         }
         if(!$attendance_heads->isEmpty()){
             $attendance_details=AttendanceDetail::where('attendance_head_id',$attendance_heads[0]->id)->get();
+            if($attendance_heads[0]->status==="1"){
+                $disabled=true;
+            }
+            else{
+                $disabled=false;
+            }
         }
         else{
             $attendance_details=[];
+            $disabled=false;
         }
         $data=[
             'items'=>$items,
             'holidays'=>$holidays,
             'holidayName'=>$holidayName,
-            'attendance_details'=>$attendance_details
+            'attendance_details'=>$attendance_details,
+            'disabled'=>$disabled
         ];
         return $data;
     }
@@ -236,6 +252,161 @@ class KintaiEntryController extends Controller
                 $updateAlert=true;
                 $data=[
                     'updateAlert'=>$updateAlert
+                ];
+                return $data;
+            }
+            catch(\Exception $ex){
+                DB::rollBack();
+            }
+        }
+    }
+    public function app(Request $request){
+        $id=$request->input('id');
+        $yyyymm=$request->input('yyyymm');
+        $day=$request->input('day');
+        $kbn=$request->input('kbn');
+        $start_time=$request->input('start_time');
+        $end_time=$request->input('end_time');
+        $rest_time=$request->input('rest_time');
+        $night_rest_time=$request->input('night_rest_time');
+        $work_time=$request->input('work_time');
+        $over_time=$request->input('over_time');
+        $remarks=$request->input('remarks');
+        $app_id=AttendanceHead::where('user_id',$id)->where('yyyymm',$yyyymm)->get();
+        if(!$app_id->isEmpty()){
+            $attendance_head_id=$app_id[0]->id;
+            $app_data=AttendanceDetail::where('attendance_head_id',$attendance_head_id)->get();
+        }
+        if($app_id->isEmpty()){
+            DB::beginTransaction();
+            try{
+                $attendance_heads=new AttendanceHead();
+                $attendance_heads->fill([
+                    'user_id'=>$id,
+                    'yyyymm'=>$yyyymm,
+                    'status'=>1,
+                ]);
+                $attendance_heads->save();
+                DB::commit();
+            }
+            catch(\Exception $ex){
+                DB::rollBack();
+            }
+        }
+        else{
+            DB::beginTransaction();
+            try{
+                $attendance_heads=AttendanceHead::find($app_id[0]->id);
+                $attendance_heads->fill([
+                    'user_id'=>$id,
+                    'yyyymm'=>$yyyymm,
+                    'status'=>1,
+                ]);
+                $attendance_heads->save();
+                DB::commit();
+            }
+            catch(\Exception $ex){
+                DB::rollBack();
+            }
+        }
+        $app_id=AttendanceHead::where('user_id',$id)->where('yyyymm',$yyyymm)->get();
+        $attendance_head_id=$app_id[0]->id;
+        $save_data=AttendanceDetail::where('attendance_head_id',$attendance_head_id)->get();
+        if($save_data->isEmpty()){
+            DB::beginTransaction();
+            try{
+                for($i=0;$i<count($day);$i++){
+                    if(is_null($start_time[$i])){
+                        $start_time[$i]="00:00:00";
+                    }
+                    if(is_null($end_time[$i])){
+                        $end_time[$i]="00:00:00";
+                    }
+                    if(is_null($rest_time[$i])){
+                        $rest_time[$i]="00:00:00";
+                    }
+                    if(is_null($night_rest_time[$i])){
+                        $night_rest_time[$i]="00:00:00";
+                    }
+                    if(is_null($work_time[$i])){
+                        $work_time[$i]="00:00:00";
+                    }
+                    if(is_null($over_time[$i])){
+                        $over_time[$i]="00:00:00";
+                    }
+                    if(is_null($remarks[$i])){
+                        $remarks[$i]="";
+                    }
+                    $attendance_details=new AttendanceDetail();
+                    $attendance_details->fill([
+                        'attendance_head_id'=>$attendance_head_id,
+                        'day'=>$day[$i],
+                        'kbn'=>$kbn[$i],
+                        'start_time'=>$start_time[$i],
+                        'end_time'=>$end_time[$i],
+                        'rest_time'=>$rest_time[$i],
+                        'night_rest_time'=>$night_rest_time[$i],
+                        'work_time'=>$work_time[$i],
+                        'over_time'=>$over_time[$i],
+                        'remarks'=>$remarks[$i]
+                    ]);
+                    $attendance_details->save();
+                    DB::commit();
+                }
+                $appAlert=true;
+                $data=[
+                    'appAlert'=>$appAlert
+                ];
+                return $data;
+            }
+            catch(\Exception $ex){
+                DB::rollBack();
+            }
+        }
+        else{
+            DB::beginTransaction();
+            try{
+                for($i=0;$i<count($day);$i++){
+                    if(is_null($start_time[$i])){
+                        $start_time[$i]="00:00:00";
+                    }
+                    if(is_null($end_time[$i])){
+                        $end_time[$i]="00:00:00";
+                    }
+                    if(is_null($rest_time[$i])){
+                        $rest_time[$i]="00:00:00";
+                    }
+                    if(is_null($night_rest_time[$i])){
+                        $night_rest_time[$i]="00:00:00";
+                    }
+                    if(is_null($work_time[$i])){
+                        $work_time[$i]="00:00:00";
+                    }
+                    if(is_null($over_time[$i])){
+                        $over_time[$i]="00:00:00";
+                    }
+                    if(is_null($remarks[$i])){
+                        $remarks[$i]="";
+                    }
+                    $attendance_details=AttendanceDetail::find($app_data[$i]->id);
+                    $attendance_details->fill([
+                        'kbn'=>$kbn[$i],
+                        'start_time'=>$start_time[$i],
+                        'end_time'=>$end_time[$i],
+                        'rest_time'=>$rest_time[$i],
+                        'night_rest_time'=>$night_rest_time[$i],
+                        'work_time'=>$work_time[$i],
+                        'over_time'=>$over_time[$i],
+                        'remarks'=>$remarks[$i]
+                    ]);
+                    $attendance_details->save();
+                    DB::commit();
+                }
+                $appAlert=true;
+                $disabled=true;
+                $data=[
+                    'appAlert'=>$appAlert,
+                    'disabled'=>$disabled
                 ];
                 return $data;
             }
