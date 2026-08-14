@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
 use App\Models\AttendanceHead;
 use Illuminate\View\View;
+use App\Http\Requests\kintaiMasterApprovalRequest;
 use Carbon\Carbon;
 
 class KintaiMasterController extends Controller
@@ -21,6 +24,9 @@ class KintaiMasterController extends Controller
         $request->session()->put('searchName',$searchName);
         $searchStatus=null;
         $request->session()->put('searchStatus',$searchStatus);
+        $page=1;
+        $request->session()->put('page',$page);
+        $offset=5*($request->session()->get('page')-1);
         $AttendanceHeads=AttendanceHead::query()
         ->when($yyyymm,function($query,$yyyymm){
             $query->where('yyyymm',$yyyymm);
@@ -37,14 +43,35 @@ class KintaiMasterController extends Controller
         })
         ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
             $query->where('status', $searchStatus);
-        })->get();
+        })->offset($offset)->limit(5)->get();
+        $AttendanceHeadCount=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->count();
+        $count=ceil($AttendanceHeadCount/5);
+
         return view('kintai_master.index',[
             'id'=>session('id'),
             'searchMonth'=>$searchMonth,
             'searchNumber'=>$searchNumber,
             'searchName'=>$searchName,
             'searchStatus'=>$searchStatus,
-            'AttendanceHeads'=>$AttendanceHeads
+            'AttendanceHeads'=>$AttendanceHeads,
+            'count'=>$count,
+            'page'=>$page
         ]);
     }
     public function searchCondition(Request $request,Response $response):View
@@ -64,6 +91,8 @@ class KintaiMasterController extends Controller
             $number=$request->session()->get('searchNumber');
             $name=$request->session()->get('searchName');
             $status=$request->session()->get('searchStatus');
+            $page=$request->session()->get('page');
+            $offset=5*($page-1);
             $AttendanceHeads=AttendanceHead::query()
             ->when($yyyymm,function($query,$yyyymm){
                 $query->where('yyyymm',$yyyymm);
@@ -80,14 +109,34 @@ class KintaiMasterController extends Controller
             })
             ->when(!is_null($status), function ($query) use ($status) {
                 $query->where('status', $status);
-            })->get();
+            })->offset($offset)->limit(5)->get();
+            $AttendanceHeadCount=AttendanceHead::query()
+            ->when($yyyymm,function($query,$yyyymm){
+                $query->where('yyyymm',$yyyymm);
+            })
+            ->when($number,function($query,$number){
+                $query->whereHas('user',function($q) use ($number){
+                    $q->where('user_no',$number);
+                });
+            })
+            ->when($name,function($query,$name){
+                $query->whereHas('user',function($q) use ($name){
+                    $q->where('name','like',"%$name%");
+                });
+            })
+            ->when(!is_null($status), function ($query) use ($status) {
+                $query->where('status', $status);
+            })->count();
+            $count=ceil($AttendanceHeadCount/5);
             return view('kintai_master.index',[
                 'id'=>session('id'),
                 'searchMonth'=>$searchMonth,
                 'searchNumber'=>$searchNumber,
                 'searchName'=>$searchName,
                 'searchStatus'=>$searchStatus,
-                'AttendanceHeads'=>$AttendanceHeads
+                'AttendanceHeads'=>$AttendanceHeads,
+                'page'=>$page,
+                'count'=>$count,
             ]);
         }
         elseif($action==='search'){
@@ -108,6 +157,9 @@ class KintaiMasterController extends Controller
             $number=$request->session()->get('searchNumber');
             $name=$request->session()->get('searchName');
             $status=$request->session()->get('searchStatus');
+            $page=1;
+            $request->session()->put('page',$page);
+            $offset=5*($request->session()->get('page')-1);
             $AttendanceHeads=AttendanceHead::query()
             ->when($yyyymm,function($query,$yyyymm){
                 $query->where('yyyymm',$yyyymm);
@@ -124,15 +176,277 @@ class KintaiMasterController extends Controller
             })
             ->when(!is_null($status), function ($query) use ($status) {
                 $query->where('status', $status);
-            })->get();
+            })->offset($offset)->limit(5)->get();
+            $AttendanceHeadCount=AttendanceHead::query()
+            ->when($yyyymm,function($query,$yyyymm){
+                $query->where('yyyymm',$yyyymm);
+            })
+            ->when($number,function($query,$number){
+                $query->whereHas('user',function($q) use ($number){
+                    $q->where('user_no',$number);
+                });
+            })
+            ->when($name,function($query,$name){
+                $query->whereHas('user',function($q) use ($name){
+                    $q->where('name','like',"%$name%");
+                });
+            })
+            ->when(!is_null($status), function ($query) use ($status) {
+                $query->where('status', $status);
+            })->count();
+            $count=ceil($AttendanceHeadCount/5);
             return view('kintai_master.index',[
                 'id'=>session('id'),
                 'searchMonth'=>$searchMonth,
                 'searchNumber'=>$searchNumber,
                 'searchName'=>$searchName,
                 'searchStatus'=>$searchStatus,
-                'AttendanceHeads'=>$AttendanceHeads
+                'AttendanceHeads'=>$AttendanceHeads,
+                'page'=>$page,
+                'count'=>$count
             ]);
         }
+    }
+    public function page(Request $request,Response $response,$page):View
+    {
+        $searchMonth=$request->session()->get('searchMonth');
+        $searchNumber=$request->session()->get('searchNumber');
+        $searchName=$request->session()->get('searchName');
+        $searchStatus=$request->session()->get('searchStatus');
+        if(!is_null($request->session()->get('searchMonth'))){
+            $yyyymm=Carbon::createFromFormat('Y-m',$request->session()->get('searchMonth'))->format('Ym');
+        }
+        else{
+            $yyyymm=null;
+        }
+        $request->session()->put('page',$page);
+        $offset=5*($page-1);
+        $AttendanceHeads=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->offset($offset)->limit(5)->get();
+        $AttendanceHeadCount=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->count();
+        $count=ceil($AttendanceHeadCount/5);
+        return view('kintai_master.index',[
+            'id'=>session('id'),
+            'searchMonth'=>$searchMonth,
+            'searchNumber'=>$searchNumber,
+            'searchName'=>$searchName,
+            'searchStatus'=>$searchStatus,
+            'AttendanceHeads'=>$AttendanceHeads,
+            'page'=>$page,
+            'count'=>$count
+        ]);
+    }
+    public function page_front(Request $request,Response $response):View
+    {
+        $searchMonth=$request->session()->get('searchMonth');
+        $searchNumber=$request->session()->get('searchNumber');
+        $searchName=$request->session()->get('searchName');
+        $searchStatus=$request->session()->get('searchStatus');
+        if(!is_null($request->session()->get('searchMonth'))){
+            $yyyymm=Carbon::createFromFormat('Y-m',$request->session()->get('searchMonth'))->format('Ym');
+        }
+        else{
+            $yyyymm=null;
+        }
+        $page=$request->session()->get('page')-1;
+        $request->session()->put('page',$page);
+        $offset=5*($page-1);
+        $AttendanceHeads=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->offset($offset)->limit(5)->get();
+        $AttendanceHeadCount=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->count();
+        $count=ceil($AttendanceHeadCount/5);
+        return view('kintai_master.index',[
+            'id'=>session('id'),
+            'searchMonth'=>$searchMonth,
+            'searchNumber'=>$searchNumber,
+            'searchName'=>$searchName,
+            'searchStatus'=>$searchStatus,
+            'AttendanceHeads'=>$AttendanceHeads,
+            'page'=>$page,
+            'count'=>$count
+        ]);
+    }
+    public function page_next(Request $request,Response $response):View
+    {
+        $searchMonth=$request->session()->get('searchMonth');
+        $searchNumber=$request->session()->get('searchNumber');
+        $searchName=$request->session()->get('searchName');
+        $searchStatus=$request->session()->get('searchStatus');
+        if(!is_null($request->session()->get('searchMonth'))){
+            $yyyymm=Carbon::createFromFormat('Y-m',$request->session()->get('searchMonth'))->format('Ym');
+        }
+        else{
+            $yyyymm=null;
+        }
+        $page=$request->session()->get('page')+1;
+        $request->session()->put('page',$page);
+        $offset=5*($page-1);
+        $AttendanceHeads=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->offset($offset)->limit(5)->get();
+        $AttendanceHeadCount=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->count();
+        $count=ceil($AttendanceHeadCount/5);
+        return view('kintai_master.index',[
+            'id'=>session('id'),
+            'searchMonth'=>$searchMonth,
+            'searchNumber'=>$searchNumber,
+            'searchName'=>$searchName,
+            'searchStatus'=>$searchStatus,
+            'AttendanceHeads'=>$AttendanceHeads,
+            'page'=>$page,
+            'count'=>$count
+        ]);
+    }
+    public function approval(kintaiMasterApprovalRequest $request,Response $response):View
+    {
+        $searchMonth=$request->session()->get('searchMonth');
+        $searchNumber=$request->session()->get('searchNumber');
+        $searchName=$request->session()->get('searchName');
+        $searchStatus=$request->session()->get('searchStatus');
+        if(!is_null($request->session()->get('searchMonth'))){
+            $yyyymm=Carbon::createFromFormat('Y-m',$request->session()->get('searchMonth'))->format('Ym');
+        }
+        else{
+            $yyyymm=null;
+        }
+        $page=$request->session()->get('page');
+        $offset=5*($page-1);
+        $AttendanceHeads=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->offset($offset)->limit(5)->get();
+        $AttendanceHeadCount=AttendanceHead::query()
+        ->when($yyyymm,function($query,$yyyymm){
+            $query->where('yyyymm',$yyyymm);
+        })
+        ->when($searchNumber,function($query,$searchNumber){
+            $query->whereHas('user',function($q) use ($searchNumber){
+                $q->where('user_no',$searchNumber);
+            });
+        })
+        ->when($searchName,function($query,$searchName){
+            $query->whereHas('user',function($q) use ($searchName){
+                $q->where('name','like',"%$searchName%");
+            });
+        })
+        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
+            $query->where('status', $searchStatus);
+        })->count();
+        $count=ceil($AttendanceHeadCount/5);
+        return view('kintai_master.index',[
+            'id'=>session('id'),
+            'searchMonth'=>$searchMonth,
+            'searchNumber'=>$searchNumber,
+            'searchName'=>$searchName,
+            'searchStatus'=>$searchStatus,
+            'AttendanceHeads'=>$AttendanceHeads,
+            'page'=>$page,
+            'count'=>$count
+        ]);
     }
 }

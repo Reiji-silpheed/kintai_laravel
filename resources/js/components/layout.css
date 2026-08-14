@@ -44,3 +44,52 @@
     width:25%
 }
 
+#kintaiMasterTable{
+    width:100%;
+    table-layout: fixed;
+}
+
+
+#kintaiMasterTable th:nth-child(1),
+#kintaiMasterTable td:nth-child(1){
+    width:3%
+}
+#kintaiMasterTable th:nth-child(2),
+#kintaiMasterTable td:nth-child(2){
+    width:4%
+}
+#kintaiMasterTable th:nth-child(3),
+#kintaiMasterTable td:nth-child(3){
+    width:9%
+}
+#kintaiMasterTable th:nth-child(4),
+#kintaiMasterTable td:nth-child(4){
+    width:10%
+}
+#kintaiMasterTable th:nth-child(5),
+#kintaiMasterTable td:nth-child(5){
+    width:10%
+}
+#kintaiMasterTable th:nth-child(6),
+#kintaiMasterTable td:nth-child(6){
+    width:10%
+}
+#kintaiMasterTable th:nth-child(7),
+#kintaiMasterTable td:nth-child(7){
+    width:10%
+}
+#kintaiMasterTable th:nth-child(8),
+#kintaiMasterTable td:nth-child(8){
+    width:10%
+}
+#kintaiMasterTable th:nth-child(9),
+#kintaiMasterTable td:nth-child(9){
+    width:10%
+}
+#kintaiMasterTable th:nth-child(10),
+#kintaiMasterTable td:nth-child(10){
+    width:25%
+}
+
+
+

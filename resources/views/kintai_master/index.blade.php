@@ -7,6 +7,9 @@
         @if($AttendanceHeads->isEmpty())
             <div class="alert alert-warning" role="alert">検索結果がありませんでした。</div>
         @endif
+        @error('check')
+            <div class="alert alert-danger" role="alert">{{$message}}</div>
+        @enderror
         <div class="card">
             <div class="card-header">
                 検索条件
@@ -57,7 +60,7 @@
             <div class="card-body">
                 <div class="container">
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="button" class="btn btn-success">承認</button>
+                        <button type="button" id="approvalBtn" class="btn btn-success "data-bs-toggle="modal" data-bs-target="#approvalModal">承認</button>
                         <button type="button" class="btn btn-danger">差戻</button>
                         <button type="button" class="btn btn-light">Excel出力</button>
                         <button type="button" class="btn btn-light">PDF出力</button>
@@ -78,7 +81,7 @@
                             <tr>
                                 <td>
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" name="{{$AttendanceHead->id}}">
+                                        <input type="checkbox" class="form-check-input" name="checkBox" value="{{$AttendanceHead->id}}">
                                     </div>
                                 </td>
                                 <td>{{$AttendanceHead->yyyymm}}</td>
@@ -94,13 +97,57 @@
                                     <td>承認済</td>
                                 @endif
                                 <td>
-                                    <button type="button" class="btn btn-info">確認</button>
+                                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#checkModal">確認</button>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @if((int)$page===1) disabled @endif"><a class="page-link" href="/kintai_master/page_front">前</a></li>
+                        @for($i=1;$i<=(int)$count;$i++)
+                            <li class="page-item @if((int)$page===$i) active @endif"><a class="page-link" href="{{route('kintai_master/page',['page'=>$i])}}">{{$i}}</a></li>
+                        @endfor
+                        <li class="page-item @if((int)$page===(int)$count) disabled @endif"><a class="page-link" href="/kintai_master/page_next">次</a></li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
+    {{-- 承認モーダル --}}
+    <div class="modal fade" id="approvalModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content ">
+                <form action="/kintai_master/approval" method="POST">
+                    @csrf
+                    <div class="modal-header bg-info">
+                        <h1 class="modal-title fs-5 text-white">承認</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>選択した勤怠の承認をを行いますか？</p>
+                        <input type="hidden" id="check" name="check" value="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                        <button type="submit" name="approvalModalBtn" class="btn btn-success">承認</button>
+                    </div><!-- /.modal-footer -->
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script>
+        $(function(){
+            $(document).on("click","#approvalBtn",function(){
+                let selected=[];
+                $('[name="checkBox"]:checked').each(function(){
+                    selected.push($(this).val());
+                });
+                $('#check').val(selected);
+                console.log($('#check').val());
+            });
+        })
+    </script>
 @endsection
