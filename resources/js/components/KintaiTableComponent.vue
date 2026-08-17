@@ -67,7 +67,7 @@
                                 <input type="time" class="form-control" v-model="tdOverTime[n-1]" readonly :disabled="disabled">
                             </td>
                             <td :class="tdClass(n-1)">
-                                <input type="text" class="form-control" v-model="holidayName[n-1]" :disabled="disabled">
+                                <input type="text" class="form-control" v-model="remarks[n-1]" :disabled="disabled">
                             </td>
                         </tr>
                     </tbody>
@@ -117,6 +117,7 @@ export default{
             tdNightBreak:[],
             tdWorkTime:[],
             tdOverTime:[],
+            remarks:[],
             holidayCheck:[],
             updateAlert:false,
             appAlert:false
@@ -138,7 +139,9 @@ export default{
             this.tdWorkTime=[];
             this.tdOverTime=[];
             this.holidayCheck=[];
+            this.remarks=[];
             if(this.attendance_details.length==0){
+                this.remarks=this.holidayName;
                 for(let i=0;i<this.lastDay;i++){
                     this.day.push(i+1);
                     let yyyymmdd=this.month;
@@ -187,6 +190,7 @@ export default{
                         this.holidayCheck.push(false);
                     }
                     this.kubun.push(this.attendance_details[i]['kbn']);
+                    this.remarks.push(this.attendance_details[i]['remarks']);
                     if(this.attendance_details[i]['kbn']==="1" || this.attendance_details[i]['kbn']==="4"){
                         this.tdStartTime.push(this.attendance_details[i]['start_time']);
                         this.tdEndTime.push(this.attendance_details[i]['end_time']);
@@ -269,6 +273,8 @@ export default{
             }
         },
         async save(){
+            this.updateAlert=false;
+            this.appAlert=false;
             const display=this.month;
             let year=display.slice(0,4);
             let month=display.slice(5,7);
@@ -291,8 +297,14 @@ export default{
             if(this.updateAlert===true){
                 this.$emit('updateAlert',true);
             }
+            if(this.appAlert===false){
+                this.$emit('appAlert',false);
+            }
+            this.$emit("updateSendBack");
         },
         async app(){
+            this.updateAlert=false;
+            this.appAlert=false;
             const display=this.month;
             let year=display.slice(0,4);
             let month=display.slice(5,7);
@@ -312,10 +324,14 @@ export default{
             })
             let data=res.data.appAlert;
             this.appAlert=data;
-            if(this.appAlert==true){
+            if(this.appAlert===true){
                 this.$emit('appAlert',true);
             }
+            if(this.updateAlert===false){
+                this.$emit('updateAlert',false);
+            }
             this.$emit('appDisabled',true);
+            this.$emit("updateSendBack");
         }
     }
 };

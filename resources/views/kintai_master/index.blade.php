@@ -65,53 +65,54 @@
                         <button type="button" class="btn btn-light">Excel出力</button>
                         <button type="button" class="btn btn-light">PDF出力</button>
                     </div>
-                <table class="table mt-2">
-                    <thead>
-                        <tr class="table-dark">
-                            <th>#</th>
-                            <th scope="col">年月</th>
-                            <th scope="col">社員番号</th>
-                            <th scope="col">社員名</th>
-                            <th scope="col">ステータス</th>
-                            <th scope="col">確認</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($AttendanceHeads as $AttendanceHead)
-                            <tr>
-                                <td>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" name="checkBox" value="{{$AttendanceHead->id}}">
-                                    </div>
-                                </td>
-                                <td>{{$AttendanceHead->yyyymm}}</td>
-                                <td>{{$AttendanceHead->user->user_no}}</td>
-                                <td>{{$AttendanceHead->user->name}}</td>
-                                @if($AttendanceHead->status==="0")
-                                    <td>入力中</td>
-                                @elseif($AttendanceHead->status==="1")
-                                    <td>申請中</td>
-                                @elseif($AttendanceHead->status==="2")
-                                    <td>差戻中</td>
-                                @elseif($AttendanceHead->status==="3")
-                                    <td>承認済</td>
-                                @endif
-                                <td>
-                                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#checkModal">確認</button>
-                                </td>
+                    <table class="table mt-2">
+                        <thead>
+                            <tr class="table-dark">
+                                <th>#</th>
+                                <th scope="col">年月</th>
+                                <th scope="col">社員番号</th>
+                                <th scope="col">社員名</th>
+                                <th scope="col">ステータス</th>
+                                <th scope="col">確認</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item @if((int)$page===1) disabled @endif"><a class="page-link" href="/kintai_master/page_front">前</a></li>
-                        @for($i=1;$i<=(int)$count;$i++)
-                            <li class="page-item @if((int)$page===$i) active @endif"><a class="page-link" href="{{route('kintai_master/page',['page'=>$i])}}">{{$i}}</a></li>
-                        @endfor
-                        <li class="page-item @if((int)$page===(int)$count) disabled @endif"><a class="page-link" href="/kintai_master/page_next">次</a></li>
-                    </ul>
-                </nav>
+                        </thead>
+                        <tbody>
+                            @foreach($AttendanceHeads as $AttendanceHead)
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" name="checkBox" value="{{$AttendanceHead->id}}">
+                                        </div>
+                                    </td>
+                                    <td>{{$AttendanceHead->yyyymm}}</td>
+                                    <td>{{$AttendanceHead->user->user_no}}</td>
+                                    <td>{{$AttendanceHead->user->name}}</td>
+                                    @if($AttendanceHead->status==="0")
+                                        <td>入力中</td>
+                                    @elseif($AttendanceHead->status==="1")
+                                        <td>申請中</td>
+                                    @elseif($AttendanceHead->status==="2")
+                                        <td>差戻中</td>
+                                    @elseif($AttendanceHead->status==="3")
+                                        <td>承認済</td>
+                                    @endif
+                                    <td>
+                                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#checkModal">確認</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @if((int)$page===1) disabled @endif"><a class="page-link" href="/kintai_master/page_front">前</a></li>
+                            @for($i=1;$i<=(int)$count;$i++)
+                                <li class="page-item @if((int)$page===$i) active @endif"><a class="page-link" href="{{route('kintai_master/page',['page'=>$i])}}">{{$i}}</a></li>
+                            @endfor
+                            <li class="page-item @if((int)$page===(int)$count) disabled @endif"><a class="page-link" href="/kintai_master/page_next">次</a></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>

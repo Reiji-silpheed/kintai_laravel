@@ -9,6 +9,29 @@
         <div class="alert alert-success" role="alert">申請が完了しました。</div>
     </div>
     <div class="container">
+        <div v-if="sendBack" class="card mb-4">
+            <div class="card-header">
+                差戻一覧
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="table-dark">日付</th>
+                                <th class="table-dark">理由</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="n in count" :key="n">
+                                <td>{{sendBack_yyyymm[n-1]}}</td>
+                                <td>{{sendBack_comment[n-1]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         <div class="card">
             <div class="card-header">
                 入力
@@ -28,7 +51,7 @@
             </div>
         </div>
     </div>
-    <kintai-table-component :items="items" :holidays="holidays" :holidayName="holidayName" :attendance_details="attendance_details" :disabled="disabled" :weekDay="weekDay" :lastDay="lastDay" :month="month" @updateAlert="updateAlert=$event" @appAlert="appAlert=$event" @appDisabled="disabled=$event"></kintai-table-component>
+    <kintai-table-component :items="items" :holidays="holidays" :holidayName="holidayName" :attendance_details="attendance_details" :disabled="disabled" :weekDay="weekDay" :lastDay="lastDay" :month="month" @updateAlert="updateAlert=$event" @appAlert="appAlert=$event" @appDisabled="disabled=$event" @updateSendBack="updateSendBack"></kintai-table-component>
 </template>
 
 <script>
@@ -47,6 +70,10 @@ export default{
             disabled:"",
             updateAlert:"",
             appAlert:"",
+            sendBack:"",
+            count:"",
+            sendBack_yyyymm:[],
+            sendBack_comment:[],
             error:{}
         }
 
@@ -85,7 +112,7 @@ export default{
                 'date':date,
                 'yyyymm':yyyymm,
                 'id':window.login.id
-                }});
+            }});
             const items=res.data.items;
             this.items=items;
             const holidays=res.data.holidays;
@@ -96,6 +123,14 @@ export default{
             this.attendance_details=attendance_details;
             const disabled=res.data.disabled;
             this.disabled=disabled;
+            const sendBack=res.data.sendBack;
+            this.sendBack=sendBack;
+            const sendBack_yyyymm=res.data.sendBack_yyyymm;
+            this.sendBack_yyyymm=sendBack_yyyymm;
+            const sendBack_comment=res.data.sendBack_comment;
+            this.sendBack_comment=sendBack_comment;
+            const count=res.data.count;
+            this.count=count;
             const weekDays=["日","月","火","水","木","金","土"];
             const weekName=[];
             for(let i=1;i<=lastDay;i++){
@@ -163,7 +198,17 @@ export default{
             catch(error){
                 this.error=error.response.data.errors;
             }
-
+        },
+        async updateSendBack(){
+            let res=await axios.get("api/kintai_entry_api/updateSendBack",{params:{'id':window.login.id}});
+            const sendBack=res.data.sendBack;
+            this.sendBack=sendBack;
+            const sendBack_yyyymm=res.data.sendBack_yyyymm;
+            this.sendBack_yyyymm=sendBack_yyyymm;
+            const sendBack_comment=res.data.sendBack_comment;
+            this.sendBack_comment=sendBack_comment;
+            const count=res.data.count;
+            this.count=count;
         }
     }
 }

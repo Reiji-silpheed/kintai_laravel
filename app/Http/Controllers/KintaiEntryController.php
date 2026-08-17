@@ -24,10 +24,23 @@ class KintaiEntryController extends Controller
         $items=User::get();
         $holidays=Holiday::get();
         $attendance_heads=AttendanceHead::where('yyyymm',$yyyymm)->where('user_id',$id)->get();
+        $values=AttendanceHead::where('user_id',$id)->get();
+        $sendBack=false;
+        $sendBack_yyyymm=[];
+        $sendBack_comment=[];
+        $count=0;
         $response=Http::get('https://holidays-jp.github.io/api/v1/date.json');
         $nationalHoliday=$response->json();
         $holidayName=[];
         $holidayCollection=collect($holidays);
+        foreach($values as $value){
+            if($value->status==='2'){
+                $sendBack=true;
+                $sendBack_yyyymm[]=$value->yyyymm;
+                $sendBack_comment[]=$value->reject_comment;
+                $count+=1;
+            }
+        }
         foreach($dates as $date){
             if($holidayCollection->contains('yyyymmdd',$date)){
                 $holidayName[]=Holiday::where('yyyymmdd',$date)->value('holiday_name');
@@ -41,7 +54,7 @@ class KintaiEntryController extends Controller
         }
         if(!$attendance_heads->isEmpty()){
             $attendance_details=AttendanceDetail::where('attendance_head_id',$attendance_heads[0]->id)->get();
-            if($attendance_heads[0]->status==="1"){
+            if($attendance_heads[0]->status==="1" || $attendance_heads[0]->status==="3"){
                 $disabled=true;
             }
             else{
@@ -57,7 +70,11 @@ class KintaiEntryController extends Controller
             'holidays'=>$holidays,
             'holidayName'=>$holidayName,
             'attendance_details'=>$attendance_details,
-            'disabled'=>$disabled
+            'disabled'=>$disabled,
+            'sendBack'=>$sendBack,
+            'sendBack_yyyymm'=>$sendBack_yyyymm,
+            'sendBack_comment'=>$sendBack_comment,
+            'count'=>$count
         ];
         return $data;
     }
@@ -69,10 +86,23 @@ class KintaiEntryController extends Controller
         $items=User::get();
         $holidays=Holiday::get();
         $attendance_heads=AttendanceHead::where('yyyymm',$yyyymm)->where('user_id',$id)->get();
+        $values=AttendanceHead::where('user_id',$id)->get();
+        $sendBack=false;
+        $sendBack_yyyymm=[];
+        $sendBack_comment=[];
+        $count=0;
         $response=Http::get('https://holidays-jp.github.io/api/v1/date.json');
         $nationalHoliday=$response->json();
         $holidayName=[];
         $collection=collect($holidays);
+        foreach($values as $value){
+            if($value->status==='2'){
+                $sendBack=true;
+                $sendBack_yyyymm[]=$value->yyyymm;
+                $sendBack_comment[]=$value->reject_comment;
+                $count+=1;
+            }
+        }
         foreach($dates as $date){
             if($collection->contains('yyyymmdd',$date)){
                 /* value():配列の値だけ取得 */
@@ -87,7 +117,7 @@ class KintaiEntryController extends Controller
         }
         if(!$attendance_heads->isEmpty()){
             $attendance_details=AttendanceDetail::where('attendance_head_id',$attendance_heads[0]->id)->get();
-            if($attendance_heads[0]->status==="1"){
+            if($attendance_heads[0]->status==="1" || $attendance_heads[0]->status==="3"){
                 $disabled=true;
             }
             else{
@@ -103,7 +133,35 @@ class KintaiEntryController extends Controller
             'holidays'=>$holidays,
             'holidayName'=>$holidayName,
             'attendance_details'=>$attendance_details,
-            'disabled'=>$disabled
+            'disabled'=>$disabled,
+            'sendBack'=>$sendBack,
+            'sendBack_yyyymm'=>$sendBack_yyyymm,
+            'sendBack_comment'=>$sendBack_comment,
+            'count'=>$count
+        ];
+        return $data;
+    }
+    public function updateSendBack(Request $request)
+    {
+        $id=$request->input('id');
+        $values=AttendanceHead::where('user_id',$id)->get();
+        $sendBack=false;
+        $sendBack_yyyymm=[];
+        $sendBack_comment=[];
+        $count=0;
+        foreach($values as $value){
+            if($value->status==='2'){
+                $sendBack=true;
+                $sendBack_yyyymm[]=$value->yyyymm;
+                $sendBack_comment[]=$value->reject_comment;
+                $count+=1;
+            }
+        }
+        $data=[
+            'sendBack'=>$sendBack,
+            'sendBack_yyyymm'=>$sendBack_yyyymm,
+            'sendBack_comment'=>$sendBack_comment,
+            'count'=>$count
         ];
         return $data;
     }
@@ -128,22 +186,6 @@ class KintaiEntryController extends Controller
             DB::beginTransaction();
             try{
                 $attendance_heads=new AttendanceHead();
-                $attendance_heads->fill([
-                    'user_id'=>$id,
-                    'yyyymm'=>$yyyymm,
-                    'status'=>0,
-                ]);
-                $attendance_heads->save();
-                DB::commit();
-            }
-            catch(\Exception $ex){
-                DB::rollBack();
-            }
-        }
-        else{
-            DB::beginTransaction();
-            try{
-                $attendance_heads=AttendanceHead::find($save_id[0]->id);
                 $attendance_heads->fill([
                     'user_id'=>$id,
                     'yyyymm'=>$yyyymm,
@@ -285,6 +327,7 @@ class KintaiEntryController extends Controller
                     'user_id'=>$id,
                     'yyyymm'=>$yyyymm,
                     'status'=>1,
+                    'reject_comment'=>null
                 ]);
                 $attendance_heads->save();
                 DB::commit();
@@ -301,6 +344,7 @@ class KintaiEntryController extends Controller
                     'user_id'=>$id,
                     'yyyymm'=>$yyyymm,
                     'status'=>1,
+                    'reject_comment'=>null
                 ]);
                 $attendance_heads->save();
                 DB::commit();
