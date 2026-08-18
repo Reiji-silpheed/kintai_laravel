@@ -290,7 +290,7 @@ export default{
                 night_rest_time:this.tdNightBreak,
                 work_time:this.tdWorkTime,
                 over_time:this.tdOverTime,
-                remarks:this.holidayName
+                remarks:this.remarks
             })
             let data=res.data.updateAlert;
             this.updateAlert=data;
@@ -320,7 +320,7 @@ export default{
                 night_rest_time:this.tdNightBreak,
                 work_time:this.tdWorkTime,
                 over_time:this.tdOverTime,
-                remarks:this.holidayName
+                remarks:this.remarks
             })
             let data=res.data.appAlert;
             this.appAlert=data;
