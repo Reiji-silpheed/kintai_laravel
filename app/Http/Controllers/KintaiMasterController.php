@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use App\Models\AttendanceHead;
+use App\Models\AttendanceDetail;
 use Illuminate\View\View;
 use App\Http\Requests\kintaiMasterApprovalRequest;
 use Carbon\Carbon;
@@ -61,8 +62,8 @@ class KintaiMasterController extends Controller
         ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
             $query->where('status', $searchStatus);
         })->count();
+        $AttendanceDetails=AttendanceDetail::all();
         $count=ceil($AttendanceHeadCount/5);
-
         return view('kintai_master.index',[
             'id'=>session('id'),
             'searchMonth'=>$searchMonth,
@@ -389,64 +390,25 @@ class KintaiMasterController extends Controller
             'count'=>$count
         ]);
     }
-    public function approval(kintaiMasterApprovalRequest $request,Response $response):View
+    public function approval(kintaiMasterApprovalRequest $request,Response $response):RedirectResponse
     {
-        $searchMonth=$request->session()->get('searchMonth');
-        $searchNumber=$request->session()->get('searchNumber');
-        $searchName=$request->session()->get('searchName');
-        $searchStatus=$request->session()->get('searchStatus');
-        if(!is_null($request->session()->get('searchMonth'))){
-            $yyyymm=Carbon::createFromFormat('Y-m',$request->session()->get('searchMonth'))->format('Ym');
-        }
-        else{
-            $yyyymm=null;
-        }
+        $select=$request->input('check');
+        $checks=array_map('intval', explode(',', $select));
         $page=$request->session()->get('page');
-        $offset=5*($page-1);
-        $AttendanceHeads=AttendanceHead::query()
-        ->when($yyyymm,function($query,$yyyymm){
-            $query->where('yyyymm',$yyyymm);
-        })
-        ->when($searchNumber,function($query,$searchNumber){
-            $query->whereHas('user',function($q) use ($searchNumber){
-                $q->where('user_no',$searchNumber);
-            });
-        })
-        ->when($searchName,function($query,$searchName){
-            $query->whereHas('user',function($q) use ($searchName){
-                $q->where('name','like',"%$searchName%");
-            });
-        })
-        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
-            $query->where('status', $searchStatus);
-        })->offset($offset)->limit(5)->get();
-        $AttendanceHeadCount=AttendanceHead::query()
-        ->when($yyyymm,function($query,$yyyymm){
-            $query->where('yyyymm',$yyyymm);
-        })
-        ->when($searchNumber,function($query,$searchNumber){
-            $query->whereHas('user',function($q) use ($searchNumber){
-                $q->where('user_no',$searchNumber);
-            });
-        })
-        ->when($searchName,function($query,$searchName){
-            $query->whereHas('user',function($q) use ($searchName){
-                $q->where('name','like',"%$searchName%");
-            });
-        })
-        ->when(!is_null($searchStatus), function ($query) use ($searchStatus) {
-            $query->where('status', $searchStatus);
-        })->count();
-        $count=ceil($AttendanceHeadCount/5);
-        return view('kintai_master.index',[
-            'id'=>session('id'),
-            'searchMonth'=>$searchMonth,
-            'searchNumber'=>$searchNumber,
-            'searchName'=>$searchName,
-            'searchStatus'=>$searchStatus,
-            'AttendanceHeads'=>$AttendanceHeads,
-            'page'=>$page,
-            'count'=>$count
-        ]);
+        DB::beginTransaction();
+        try{
+            foreach($checks as $check){
+                $attendance_heads=AttendanceHead::find($check);
+                $attendance_heads->fill([
+                    'status'=>3
+                ]);
+                $attendance_heads->save();
+                DB::commit();
+            }
+            return redirect("/kintai_master/page/{$page}");
+        }catch (\Exception $ex){
+            DB::rollback();
+            return redirect("/kintai_master/page/{$page}");
+        }
     }
 }

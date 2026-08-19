@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AttendanceHead extends Model
@@ -12,9 +12,9 @@ class AttendanceHead extends Model
     use HasFactory;
     protected $guarded=['id'];
 
-    public function attendance_detail():HasOne
+    public function attendance_details():HasMany
     {
-        return $this->hasOne(AttendanceDetail::class);
+        return $this->hasMany(AttendanceDetail::class);
     }
     public function user():BelongsTo
     {

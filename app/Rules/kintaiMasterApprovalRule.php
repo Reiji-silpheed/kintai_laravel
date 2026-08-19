@@ -25,7 +25,7 @@ class kintaiMasterApprovalRule implements ValidationRule
                 $status=$AttendanceHeads[0]->status;
 
                 if($status!=='1'){
-                    $employee.="年月:{$AttendanceHeads[0]->yyyymm},社員番号:{$AttendanceHeads[0]->user->user_no},社員名:{$AttendanceHeads[0]->user->name}";
+                    $employee.="<br>年月:{$AttendanceHeads[0]->yyyymm},社員番号:{$AttendanceHeads[0]->user->user_no},社員名:{$AttendanceHeads[0]->user->name}";
                 }
             }
         }
