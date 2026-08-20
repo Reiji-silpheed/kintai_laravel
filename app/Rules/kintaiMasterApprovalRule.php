@@ -23,7 +23,6 @@ class kintaiMasterApprovalRule implements ValidationRule
             foreach($checks as $check){
                 $AttendanceHeads=AttendanceHead::where('id',$check)->get();
                 $status=$AttendanceHeads[0]->status;
-
                 if($status!=='1'){
                     $employee.="<br>年月:{$AttendanceHeads[0]->yyyymm},社員番号:{$AttendanceHeads[0]->user->user_no},社員名:{$AttendanceHeads[0]->user->name}";
                 }

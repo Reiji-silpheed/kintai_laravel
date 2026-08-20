@@ -10,6 +10,7 @@ use App\Models\AttendanceHead;
 use App\Models\AttendanceDetail;
 use Illuminate\View\View;
 use App\Http\Requests\kintaiMasterApprovalRequest;
+use App\Http\Requests\kintaiMasterSendBackRequest;
 use Carbon\Carbon;
 
 class KintaiMasterController extends Controller
@@ -392,7 +393,7 @@ class KintaiMasterController extends Controller
     }
     public function approval(kintaiMasterApprovalRequest $request,Response $response):RedirectResponse
     {
-        $select=$request->input('check');
+        $select=$request->input('approvalCheck');
         $checks=array_map('intval', explode(',', $select));
         $page=$request->session()->get('page');
         DB::beginTransaction();
@@ -405,8 +406,32 @@ class KintaiMasterController extends Controller
                 $attendance_heads->save();
                 DB::commit();
             }
-            return redirect("/kintai_master/page/{$page}");
+            return redirect("/kintai_master/page/{$page}")->with('approvalAlert',true);
         }catch (\Exception $ex){
+            DB::rollback();
+            return redirect("/kintai_master/page/{$page}");
+        }
+    }
+    public function sendBack(kintaiMasterSendBackRequest $request,Response $response):RedirectResponse
+    {
+        $select=$request->input('sendBackCheck');
+        $reject_comment=$request->input('reject_comment');
+        $checks=array_map('intval',explode(',',$select));
+        $page=$request->session()->get('page');
+        DB::beginTransaction();
+        try{
+            foreach($checks as $check){
+                $attendance_heads=AttendanceHead::find($check);
+                $attendance_heads->fill([
+                    'status'=>2,
+                    'reject_comment'=>$reject_comment
+                ]);
+                $attendance_heads->save();
+                DB::commit();
+            }
+            return redirect("/kintai_mater/page{$page}");
+        }
+        catch(\Exception $ex){
             DB::rollback();
             return redirect("/kintai_master/page/{$page}");
         }

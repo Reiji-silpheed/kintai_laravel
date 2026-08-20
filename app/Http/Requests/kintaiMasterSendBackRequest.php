@@ -3,21 +3,19 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\kintaiMasterApprovalRule;
+use App\Rules\kintaiMasterSendBackRule;
 
-class kintaiMasterApprovalRequest extends FormRequest
+class kintaiMasterSendBackRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        if($this->path()=='kintai_master/approval'){
+        if($this->path()=='kintai_master/sendBack'){
             return true;
         }
-        else{
-            return false;
-        }
+        return false;
     }
 
     /**
@@ -28,7 +26,14 @@ class kintaiMasterApprovalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'approvalCheck'=>[new kintaiMasterApprovalRule()]
+            'sendBackCheck'=>[new kintaiMasterSendBackRule()],
+            'reject_comment'=>'required'
+        ];
+    }
+    public function messages()
+    {
+        return[
+            'reject_comment.required'=>'差戻理由を記入してください'
         ];
     }
 }
