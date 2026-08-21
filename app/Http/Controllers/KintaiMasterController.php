@@ -11,6 +11,8 @@ use App\Models\AttendanceDetail;
 use Illuminate\View\View;
 use App\Http\Requests\kintaiMasterApprovalRequest;
 use App\Http\Requests\kintaiMasterSendBackRequest;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\UsersExport;
 use Carbon\Carbon;
 
 class KintaiMasterController extends Controller
@@ -429,11 +431,37 @@ class KintaiMasterController extends Controller
                 $attendance_heads->save();
                 DB::commit();
             }
-            return redirect("/kintai_mater/page{$page}");
+            return redirect("/kintai_master/page/{$page}")->with('sendBackAlert',true);
         }
         catch(\Exception $ex){
             DB::rollback();
             return redirect("/kintai_master/page/{$page}");
         }
+    }
+    public function excel(Request $request)
+    {
+        $excelCheck=$request->input('excelCheck');
+        $checks=array_map('intval',explode(',',$excelCheck));
+        foreach($checks as $check){
+            $attendance_heads=AttendanceHead::where('id',$check)->get();
+            $attendance_details=AttendanceDetail::where('attendance_head_id',$check)->get();
+            $count=AttendanceDetail::where('attendance_head_id',$check)->count();
+        }
+        $year=mb_substr($attendance_heads[0]->yyyymm,0,4);
+        $month=mb_substr($attendance_heads[0]->yyyymm,4,1);
+        if($month==0){
+            $month=mb_substr($attendance_heads[0]->yyyymm,5,1);
+        }
+        else{
+            $month=mb_substr($attendance_heads[0]->yyyymm,4,2);
+        }
+        $data=[
+            'attendance_heads'=>$attendance_heads,
+            'attendance_details'=>$attendance_details,
+            'year'=>$year,
+            'month'=>$month,
+            'count'=>$count
+        ];
+        return Excel::download(new UsersExport($data), UsersExport::FILE_NAME);
     }
 }

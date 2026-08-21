@@ -52,6 +52,7 @@ Route::controller(KintaiMasterController::class)->group(function(){
     Route::get('kintai_master/page_next','page_next');
     Route::post('kintai_master/approval','approval');
     Route::post('kintai_master/sendBack','sendBack');
+    Route::post('kintai_master/excel','excel');
 })->middleware('auth');
 
 

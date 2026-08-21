@@ -21,7 +21,7 @@ class kintaiMasterSendBackRule implements ValidationRule
         $employee="";
         foreach($checks as $check){
             $attendance_heads=AttendanceHead::where('id',$check)->get();
-            if($attendance_heads[0]->status!=='2'){
+            if($attendance_heads[0]->status!=='1'){
                 $employee.="<br>年月:{$attendance_heads[0]->yyyymm},社員番号:{$attendance_heads[0]->user->user_no},社員名:{$attendance_heads[0]->user->name}";
             }
         }

@@ -13,11 +13,14 @@
             <div class="alert alert-danger" role="alert">{!! $message !!}</div>
         @enderror
         @if(session('approvalAlert'))
-            <div class="alert alert-success" role="alert">承認処理が完了しました。</div>
+            <div id="approvalAlert" class="alert alert-success" role="alert">承認処理が完了しました。</div>
         @endif
         @error('sendBackCheck')
             <div class="alert alert-danger" role="alert">{!! $message !!}</div>
         @enderror
+        @if(session('sendBackAlert'))
+            <div id="sendBackAlert" class="alert alert-success" role="alert">差戻処理が完了しました。</div>
+        @endif
         <div class="card">
             <div class="card-header">
                 検索条件
@@ -70,7 +73,7 @@
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <button type="button" id="approvalBtn" class="btn btn-success">承認</button>
                         <button type="button" id="sendBackBtn" class="btn btn-danger">差戻</button>
-                        <button type="button" class="btn btn-light">Excel出力</button>
+                        <button type="button" id="excelBtn" class="btn btn-light">Excel出力</button>
                         <button type="button" class="btn btn-light">PDF出力</button>
                     </div>
                     <table class="table mt-2">
@@ -90,11 +93,11 @@
                                 if(old('approvalCheck')){
                                     $checkedIds=explode(',',old('approvalCheck'));
                                 }
-                                elseif(old('reject_comment')){
-                                    $checkedIds=explode(',',old('reject_comment'));
-                                }
                                 elseif(old('sendBackCheck')){
                                     $checkedIds=explode(',',old('sendBackCheck'));
+                                }
+                                elseif(old('reject_comment')){
+                                    $checkedIds=explode(',',old('reject_comment'));
                                 }
                                 else{
                                     $checkedIds=[];
@@ -132,7 +135,7 @@
                             @for($i=1;$i<=(int)$count;$i++)
                                 <li class="page-item @if((int)$page===$i) active @endif"><a class="page-link" href="{{route('kintai_master/page',['page'=>$i])}}">{{$i}}</a></li>
                             @endfor
-                            <li class="page-item @if((int)$page===(int)$count) disabled @endif"><a class="page-link" href="/kintai_master/page_next">次</a></li>
+                            <li class="page-item @if((int)$page===(int)$count || (int)$count===0) disabled @endif"><a class="page-link" href="/kintai_master/page_next">次</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -275,7 +278,7 @@
                     @csrf
                     <div class="modal-body">
                         <p>選択した勤怠の差戻を行いますか？</p>
-                        <input type="hidden" id="sendBackCheck" name="sendBackCheck" value="">
+                        <input type="hidden" id="sendBackCheck" name="sendBackCheck" value="@error('reject_comment') {{old('sendBackCheck')}} @enderror">
                         <label class="form-label">差戻理由:</label>
                         <textarea name="reject_comment" class="form-control @error('reject_comment') is-invalid @enderror" rows="4"></textarea>
                         @error('reject_comment')
@@ -291,36 +294,31 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
+    {{-- Excel出力モーダル --}}
+    <div class="modal fade" id="excelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info">
+                    <h1 class="modal-title fs-5 text-white">Excel出力</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+                <form action="/kintai_master/excel" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" id="excelCheck" name="excelCheck" value="">
+                        <p>選択した勤怠のExcel出力を行いますか？</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                        <button type="submit" class="btn btn-success">出力</button>
+                    </div><!-- /.modal-footer -->
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
     <script>
         $(function(){
-            $(document).on("click","#approvalBtn",function(){
-                let selected=[];
-                $('[name="checkBox"]:checked').each(function(){
-                    selected.push($(this).val());
-                });
-                if(selected.length===0){
-                    $('#noSelect').removeAttr('hidden');
-                }
-                else{
-                    $('.alert').remove();
-                    $('#approvalModal').modal('show');
-                }
-                $('#approvalCheck').val(selected);
-            });
-            $(document).on("click","#sendBackBtn",function(){
-                let selected=[];
-                $('[name=checkBox]:checked').each(function(){
-                    selected.push($(this).val());
-                });
-                if(selected.length===0){
-                    $('#noSelect').removeAttr('hidden');
-                }
-                else{
-                    $('.alert').remove();
-                    $('#sendBackModal').modal('show');
-                }
-                $('#sendBackCheck').val(selected);
-            });
             $(document).on("click","[name='checkBtn']",function(){
                 let yyyymm=$(this).val();
                 let year=yyyymm.slice(0,4);
@@ -377,7 +375,53 @@
                         $(modal).find(`#remarks${i}`).addClass('bg-danger-subtle');
                     }
                 }
-            })
+            });
+            $(document).on("click","#approvalBtn",function(){
+                let selected=[];
+                $('[name="checkBox"]:checked').each(function(){
+                    selected.push($(this).val());
+                });
+                if(selected.length===0){
+                    $('.alert').not('#noSelect').remove();
+                    $('#noSelect').removeAttr('hidden');
+                }
+                else{
+                    $('.alert').remove();
+                    $('#approvalModal').modal('show');
+                }
+                $('#approvalCheck').val(selected);
+            });
+            $(document).on("click","#sendBackBtn",function(){
+                let selected=[];
+                $('[name=checkBox]:checked').each(function(){
+                    selected.push($(this).val());
+                });
+                if(selected.length===0){
+                    $('.alert').not('#noSelect').remove();
+                    $('#noSelect').removeAttr('hidden');
+                }
+                else{
+                    $('.alert').remove();
+                    $('#sendBackModal').modal('show');
+                }
+                $('#sendBackCheck').val(selected);
+            });
+            $(document).on("click","#excelBtn",function(){
+                let selected=[];
+                $('[name=checkBox]:checked').each(function(){
+                    selected.push($(this).val());
+                });
+                if(selected.length===0){
+                    $('.alert').not('#noSelect').remove();
+                    $('#noSelect').removeAttr('hidden');
+                }
+                else{
+                    $('.alert').remove();
+                    $('#excelModal').modal('show');
+                }
+                console.log(selected);
+                $('#excelCheck').val(selected);
+            });
         })
     </script>
 
